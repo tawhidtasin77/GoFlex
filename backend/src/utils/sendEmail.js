@@ -1,10 +1,12 @@
 import nodemailer from "nodemailer"
 
-const sendEmail = async (to, subject, text) => {
+const sendEmail = async (to, subject, html) => {
     try {
+        // console.log("EMAIL_USER:", process.env.EMAIL_USER);
+        // console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
         const transporter = nodemailer.createTransport(
             {
-                service: "Gmail",
+                service: "gmail",
                 auth: {
                     user: process.env.EMAIL_USER,
                     pass: process.env.EMAIL_PASS
@@ -13,10 +15,10 @@ const sendEmail = async (to, subject, text) => {
         );
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"GoFlex" <${process.env.EMAIL_USER}>`,
             to,
             subject,
-            text
+            html
         }
 
         await transporter.sendMail(mailOptions);
@@ -27,3 +29,5 @@ const sendEmail = async (to, subject, text) => {
 }
 
 export { sendEmail };
+
+
