@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.models.js"
+import { sendEmail } from "../utils/sendEmail.js"
 
 const generateAccessAndRefreshToken = async(userId) => {
     try {
@@ -50,9 +51,15 @@ const registerUser = asyncHandler(async(req, res) => {
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
 
     if(!createdUser){
-        throw new ApiError(500, "something went wrong while registering a user")
+        throw new ApiError(500, "something went wrong while registering a user")   
     }
-    
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+        
+    const message = `Hello ${name}, welcome to GoFlex. Thank you for registering with us. We are excited to have you as a part of our community. To complete your registration, please use the following One-Time Password (OTP): ${otp}. This OTP is valid for a limited time, so please use it promptly. If you did not initiate this registration, please ignore this message.`;
+
+    await sendEmail(email, "GoFlex Registration OTP", message);
+
     return res
     .status(201)
     .json(
@@ -140,8 +147,39 @@ const logoutUser = asyncHandler(async(req, res) => {
     )
 })
 
+const getCurrentUser = asyncHandler(async(req, res) => {
+    const user = req.user;
+    
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            user,
+            "current user fetched successfully"
+        )
+    )
+    
+})
+
+const getUsers = asyncHandler(async(req, res) => {
+    const users = await User.find({}).select("-password -refreshToken");
+
+    if(!user){
+        throw new ApiError(500, "something went wrong while getting users.")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, users, "users fetched successfully")
+    )
+})
+
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    getCurrentUser,
+    getUsers
 }
