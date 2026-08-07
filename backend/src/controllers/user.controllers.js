@@ -36,7 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "email and name is required")
     }
 
-    const existedUser = await User.findOne({email}).select("-password -otp");
+    const existedUser = await User.findOne({email})
 
     if (existedUser) {
         if(existedUser.isVerified){
@@ -45,13 +45,17 @@ const registerUser = asyncHandler(async (req, res) => {
 
         existedUser.name = name;
         existedUser.password = password;
-
+        
         otpEmail(existedUser);
+        
+        // await existedUser.save({validateBeforeSave: true});
+        
+        const returnedUser = await User.findById(existedUser._id).select("-password -otp")
 
         return res
         .status(200)
         .json(
-            new ApiResponse(200, returnedExistedUser, "Account already exists but isn't verified. A new OTP has been sent.")
+            new ApiResponse(200, returnedUser, "Account already exists but isn't verified. A new OTP has been sent.")
         )
     }
 
@@ -63,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
         }
     )
 
-    const createdUser = await User.findById(user._id).select("-password -otp")
+    const createdUser = await User.findById(user._id);
 
     if (!createdUser) {
         throw new ApiError(500, "something went wrong while registering a user")
@@ -71,12 +75,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
     otpEmail(user);
 
+    const newUser = await User.findById(createdUser._id).select("-password -otp");
+
     return res
         .status(201)
         .json(
             new ApiResponse(
                 200,
-                createdUser,
+                newUser,
                 "user registered successfully"
             )
         )
@@ -184,7 +190,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken -otp -otpExpires")
 
     const options = {
         httpOnly: true,
@@ -255,7 +261,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 })
 
 const getUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({}).select("-password -refreshToken");
+    const users = await User.find({}).select("-password -refreshToken -otp -otpExpires");
 
     if (!users) {
         throw new ApiError(500, "something went wrong while getting users.")
@@ -270,6 +276,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
 export {
     registerUser,
+    verifyOTP,
     loginUser,
     logoutUser,
     getCurrentUser,

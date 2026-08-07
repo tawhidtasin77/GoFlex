@@ -28,7 +28,7 @@ const otpEmail = async(user) => {
                 text-align: center;
                 border-radius: 8px;
             ">
-                ${user.otp}
+                ${otp}
             </div>
     
             <p>This code will expire in <strong>10 minutes</strong>.</p>
