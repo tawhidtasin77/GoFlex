@@ -35,11 +35,11 @@ const createProduct = asyncHandler(async(req, res) => {
         throw new ApiError(400, "all fields are required");
     }
 
-    // const imageLocalPath = req.files?.image[0]?.path;
-    let imageLocalPath;
-    if(req.files && Array.isArray(req.files.image) && req.files.image.length > 0){
-        imageLocalPath = req.files.image[0].path;
-    }
+    const imageLocalPath = req.file?.path;
+    // let imageLocalPath;
+    // if(req.files && Array.isArray(req.files.image) && req.files.image.length > 0){
+    //     imageLocalPath = req.files.image[0].path;
+    // }
 
     if(!imageLocalPath){
         throw new ApiError(400, "image file is required");
@@ -88,12 +88,12 @@ const updateProduct = asyncHandler(async(req, res) => {
 
     let imageLocalPath;
     let image;
-    if(req.files && Array.isArray(req.files.image) && req.files.image > 0){
-        imageLocalPath = req.files.image[0].path;
+    if(req.file){
+        imageLocalPath = req.file?.path;
         image = await uploadOnCloudinary(imageLocalPath);
     }
 
-    product.image = image.url || product.image;
+    product.image = image?.url || product.image;
 
     const updatedProduct = await product.save();
 
