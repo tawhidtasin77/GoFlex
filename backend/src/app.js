@@ -9,7 +9,7 @@ const app = express();
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
-    Credential: true,
+    credentials: true,
 }));
 app.use(cookieParser());
 
@@ -20,7 +20,7 @@ app.use(express.static("public"))
 //user
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/products", productRouter);
-app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/orders", orderRouter);
 // app.use("/api/v1/payment", paymentRouter);
 // app.use("/api/v1/analytics", analyticsRouter); //admin
 
