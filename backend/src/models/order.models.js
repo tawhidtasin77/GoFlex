@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const orderSchema = new Schema(
-    {   
+    {
         user: {
             type: Schema.Types.ObjectId,
             ref: "User",
@@ -11,7 +11,8 @@ const orderSchema = new Schema(
             {
                 productId: {
                     type: Schema.Types.ObjectId,
-                    ref: "Product"
+                    ref: "Product",
+                    required: true
                 },
                 quantity: {
                     type: Number,
@@ -55,8 +56,12 @@ const orderSchema = new Schema(
             }
         },
         paymentId: {
+            type: String
+        },
+        paymentStatus: {
             type: String,
-            required: true
+            enum: ["PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED"],
+            default: "PENDING"
         },
         status: {
             type: String,

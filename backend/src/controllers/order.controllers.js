@@ -8,9 +8,9 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { orderHTML } from "../templates/orderHTML.templates.js";
 
 const createOrder = asyncHandler(async (req, res) => {
-    const { items, address, paymentId } = req.body;
+    const { items, address } = req.body;
 
-    if (!items || items.length === 0 || !address || !paymentId) {
+    if (!items || items.length === 0 || !address) {
         throw new ApiError(400, "Invalid order credentials");
     }
 
@@ -113,8 +113,7 @@ const createOrder = asyncHandler(async (req, res) => {
                     user: req.user._id,
                     items: orderItems,
                     totalAmount,
-                    address,
-                    paymentId
+                    address
                 }
             ],
             { session }
@@ -147,52 +146,52 @@ const createOrder = asyncHandler(async (req, res) => {
     } catch (error) {
         await session.abortTransaction();
         throw error;
-        
+
     } finally {
         await session.endSession();
     }
 });
 
-const myOrders = asyncHandler(async(req, res) => {
+const myOrders = asyncHandler(async (req, res) => {
     const user = req.user;
 
-    const orders = await Order.find({user: user._id}).populate("items.productId", "name price");
+    const orders = await Order.find({ user: user._id }).populate("items.productId", "name price");
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, orders, "orders fetched successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, orders, "orders fetched successfully")
+        )
 })
 
-const getOrders = asyncHandler(async(req, res) => {
+const getOrders = asyncHandler(async (req, res) => {
     // const orders = await Order.find({}).populate("user", "name email").populate("items.product", "name price")
     const orders = await Order.find({}).populate("user", "name email");
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, orders, "orders fetched successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, orders, "orders fetched successfully")
+        )
 });
 
-const updateOrderStatus = asyncHandler(async(req, res) => {
+const updateOrderStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
 
     const order = await Order.findById(req.params.id);
 
-    if(!order){
+    if (!order) {
         throw new ApiError(400, "invalid order request");
     }
 
     order.status = status;
-    await order.save({validateBeforeSave: false});
-    
+    await order.save({ validateBeforeSave: false });
+
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, order, "status updated successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, order, "status updated successfully")
+        )
 })
 
 export {
