@@ -21,6 +21,25 @@ const createSSLCommerzSession = async (paymentData) => {
     return response.data;
 };
 
+const validateSSLCommerzPayment = async (valId) => {
+
+    const response = await axios.get(
+        "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php",
+        {
+            params: {
+                val_id: valId,
+                store_id: process.env.SSLCOMMERZ_STORE_ID,
+                store_passwd: process.env.SSLCOMMERZ_STORE_PASSWORD,
+                v: 1,
+                format: "json"
+            }
+        }
+    );
+
+    return response.data;
+};
+
 export {
-    createSSLCommerzSession
+    createSSLCommerzSession,
+    validateSSLCommerzPayment
 };

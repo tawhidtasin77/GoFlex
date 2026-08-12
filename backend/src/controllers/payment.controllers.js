@@ -4,8 +4,7 @@ import { ApiError } from "../utils/ApiError.js"
 import { Payment } from "../models/payment.models.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { v4 as uuidv4 } from 'uuid';
-import { createSSLCommerzSession } from "../services/payment.services.js";
-// uuidv4();
+import { createSSLCommerzSession, validateSSLCommerzPayment } from "../services/payment.services.js";
 
 const createPayment = asyncHandler(async(req, res) => {
     const { orderId } = req.body;
@@ -44,9 +43,6 @@ const createPayment = asyncHandler(async(req, res) => {
 
     order.paymentId = transactionId;
     await order.save({validateBeforeSave: false});
-
-    console.log("STORE ID:", process.env.SSLCOMMERZ_STORE_ID);
-    console.log("STORE PASSWORD:", process.env.SSLCOMMERZ_STORE_PASSWORD ? "EXISTS" : "MISSING");
     
     const paymentData = {
         store_id: process.env.SSLCOMMERZ_STORE_ID,
@@ -108,14 +104,102 @@ const createPayment = asyncHandler(async(req, res) => {
 })
 
 const paymentSuccess = asyncHandler(async (req, res) => {
-    console.log("PAYMENT SUCCESS");
-    console.log(req.body);
+
+    const { tran_id, val_id } = req.body;
+
+    if (!tran_id || !val_id) {
+        throw new ApiError(
+            400,
+            "Transaction ID or validation ID is missing"
+        );
+    }
+
+    const payment = await Payment.findOne({
+        transactionId: tran_id
+    });
+
+    if (!payment) {
+        throw new ApiError(
+            404,
+            "Payment record not found"
+        );
+    }
+
+    if (payment.paymentStatus === "SUCCESS") {
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                null,
+                "Payment already verified"
+            )
+        );
+    }
+
+    const validationResponse =
+        await validateSSLCommerzPayment(val_id);
+
+    if (validationResponse.status !== "VALID") {
+
+        payment.paymentStatus = "FAILED";
+        await payment.save();
+
+        throw new ApiError(
+            400,
+            "Payment validation failed"
+        );
+    }
+
+    if (validationResponse.tran_id !== payment.transactionId) {
+
+        throw new ApiError(
+            400,
+            "Transaction ID mismatch"
+        );
+    }
+
+    if (
+        Number(validationResponse.amount) !==
+        Number(payment.amount)
+    ) {
+
+        throw new ApiError(
+            400,
+            "Payment amount mismatch"
+        );
+    }
+
+    if (validationResponse.currency !== payment.currency) {
+
+        throw new ApiError(
+            400,
+            "Payment currency mismatch"
+        );
+    }
+
+    payment.paymentStatus = "SUCCESS";
+    await payment.save();
+
+    const order = await Order.findById(payment.order);
+
+    if (!order) {
+        throw new ApiError(
+            404,
+            "Order not found"
+        );
+    }
+
+    order.paymentStatus = "PAID";
+    await order.save();
 
     return res.status(200).json(
         new ApiResponse(
             200,
-            req.body,
-            "Payment success callback received"
+            {
+                transactionId: payment.transactionId,
+                paymentStatus: payment.paymentStatus,
+                orderPaymentStatus: order.paymentStatus
+            },
+            "Payment verified successfully"
         )
     );
 });
