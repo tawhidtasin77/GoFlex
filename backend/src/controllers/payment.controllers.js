@@ -208,11 +208,34 @@ const paymentFail = asyncHandler(async (req, res) => {
     console.log("PAYMENT FAILED");
     console.log(req.body);
 
+    const { tran_id } = req.body;
+
+    const payment = await Payment.findOne({
+        transactionId: tran_id
+    });
+
+    if (!payment) {
+        throw new ApiError(404, "Payment not found");
+    }
+
+    payment.paymentStatus = "FAILED";
+    await payment.save();
+
+    await Order.findByIdAndUpdate(
+        payment.order,
+        {
+            paymentStatus: "FAILED"
+        }
+    );
+
     return res.status(200).json(
         new ApiResponse(
             200,
-            req.body,
-            "Payment failed callback received"
+            {
+                paymentStatus: payment.paymentStatus,
+                transactionId: payment.transactionId
+            },
+            "Payment failed successfully"
         )
     );
 });
@@ -221,11 +244,34 @@ const paymentCancel = asyncHandler(async (req, res) => {
     console.log("PAYMENT CANCELLED");
     console.log(req.body);
 
+    const { tran_id } = req.body;
+
+    const payment = await Payment.findOne({
+        transactionId: tran_id
+    });
+
+    if (!payment) {
+        throw new ApiError(404, "Payment not found");
+    }
+
+    payment.paymentStatus = "CANCELLED";
+    await payment.save();
+
+    await Order.findByIdAndUpdate(
+        payment.order,
+        {
+            paymentStatus: "CANCELLED"
+        }
+    );
+
     return res.status(200).json(
         new ApiResponse(
             200,
-            req.body,
-            "Payment cancelled callback received"
+            {
+                transactionId: payment.transactionId,
+                paymentStatus: payment.paymentStatus
+            },
+            "Payment cancelled successfully"
         )
     );
 });
@@ -234,11 +280,57 @@ const paymentIPN = asyncHandler(async (req, res) => {
     console.log("PAYMENT IPN");
     console.log(req.body);
 
+    const { tran_id, status } = req.body;
+
+    const payment = await Payment.findOne({
+        transactionId: tran_id
+    });
+
+    if (!payment) {
+        throw new ApiError(404, "Payment not found");
+    }
+
+    if (payment.paymentStatus === "SUCCESS") {
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                null,
+                "Payment already verified"
+            )
+        );
+    }
+
+    if (status === "VALID") {
+        payment.paymentStatus = "SUCCESS";
+        await payment.save();
+
+        await Order.findByIdAndUpdate(
+            payment.order,
+            {
+                paymentStatus: "PAID"
+            }
+        );
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                {
+                    transactionId: payment.transactionId,
+                    paymentStatus: payment.paymentStatus
+                },
+                "Payment IPN processed successfully"
+            )
+        );
+    }
+
     return res.status(200).json(
         new ApiResponse(
             200,
-            req.body,
-            "Payment IPN received"
+            {
+                transactionId: payment.transactionId,
+                paymentStatus: payment.paymentStatus
+            },
+            "Payment IPN received but transaction is not valid"
         )
     );
 });
