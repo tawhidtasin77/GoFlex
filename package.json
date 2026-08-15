@@ -1,1 +1,26 @@
-{}
+{
+  "name": "goflex",
+  "version": "1.0.0",
+  "description": "Work in Progress.",
+  "homepage": "https://github.com/tawhidtasin77/GoFlex#readme",
+  "bugs": {
+    "url": "https://github.com/tawhidtasin77/GoFlex/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tawhidtasin77/GoFlex.git"
+  },
+  "license": "ISC",
+  "author": "Tawhid Islam Tasin",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev:server": "cd backend && npm run dev",
+    "dev:client": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build": "cd frontend && npm run build"
+  },
+  "dependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
