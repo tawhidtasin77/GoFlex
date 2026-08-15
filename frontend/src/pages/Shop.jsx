@@ -2,7 +2,7 @@ import React from 'react'
 
 const Shop = () => {
   return (
-    <div className='mx-auto max-w-screen-xl'>
+    <div className=''>
       this is shop page.
     </div>
   )

@@ -1,0 +1,45 @@
+.nav {
+    background-color: rgba(9, 9, 1, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+.navbar-brand a::after {
+  content: '.';
+  color: #f97316;
+  font-size: 36px;
+}
+.navbar-links a, .navbar-links span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #a1a1aa;
+  position: relative;
+}
+.navbar-links a:hover {
+  color: #fff;
+}
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -6px;
+  left: 0;
+  background: #f97316;
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+.navbar-links a:hover::after {
+  width: 100%;
+}
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+}
