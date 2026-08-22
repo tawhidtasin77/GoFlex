@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/api";
+import { categories } from "../constants/categories";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -17,50 +18,30 @@ const EditProduct = () => {
   });
 
   const [image, setImage] = useState(null);
-  const [currentImage, setCurrentImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
-
-    if (!user || user.role !== "admin") {
-      navigate("/");
-      return;
-    }
-
     const fetchProduct = async () => {
       try {
-        setLoading(true);
-
         const response = await api.get(`/products/${id}`);
 
         const product = response.data.data;
 
-        if (!product) {
-          alert("Product not found.");
-          navigate("/admin/products");
-          return;
-        }
-
         setFormData({
           name: product.name || "",
           description: product.description || "",
-          price: product.price ?? "",
+          price: product.price || "",
           category: product.category || "",
-          stock: product.stock ?? "",
+          stock: product.stock || "",
         });
-
-        setCurrentImage(product.image || "");
       } catch (error) {
         console.error("Failed to fetch product:", error);
 
-        if (error.response?.status === 404) {
-          alert("Product not found.");
-        } else if (error.response?.status === 401) {
-          navigate("/login");
-          return;
-        }
+        alert(
+          error.response?.data?.message ||
+            "Failed to fetch product."
+        );
 
         navigate("/admin/products");
       } finally {
@@ -68,8 +49,10 @@ const EditProduct = () => {
       }
     };
 
-    fetchProduct();
-  }, [id, user, authLoading, navigate]);
+    if (user?.role === "admin") {
+      fetchProduct();
+    }
+  }, [id, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -126,18 +109,13 @@ const EditProduct = () => {
   if (authLoading || loading) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center bg-zinc-950">
-        <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-orange-500" />
-
-          <p className="text-sm text-zinc-500">
-            Loading product...
-          </p>
-        </div>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-orange-500" />
       </div>
     );
   }
 
   if (!user || user.role !== "admin") {
+    navigate("/");
     return null;
   }
 
@@ -145,17 +123,17 @@ const EditProduct = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
 
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            type="button"
-            onClick={() => navigate("/admin/products")}
-            className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
-          >
-            ← Back to Products
-          </button>
+        <button
+          type="button"
+          onClick={() => navigate("/admin/products")}
+          className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+        >
+          ← Back to Products
+        </button>
 
+        <div className="mb-8">
           <div className="flex items-center gap-4">
+
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-2xl ring-1 ring-orange-500/20">
               ✏️
             </div>
@@ -169,19 +147,18 @@ const EditProduct = () => {
                 Edit Product
               </h1>
             </div>
+
           </div>
 
           <p className="mt-4 text-sm leading-6 text-zinc-500">
-            Update the product information, pricing, inventory, or
-            replace its image.
+            Update the information of your GoFlex product.
           </p>
         </div>
 
-        {/* Form Card */}
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl shadow-black/20 sm:p-8">
+
           <form onSubmit={handleSubmit} className="space-y-6">
 
-            {/* Product Name */}
             <div>
               <label
                 htmlFor="name"
@@ -196,13 +173,11 @@ const EditProduct = () => {
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter product name"
                 required
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
               />
             </div>
 
-            {/* Description */}
             <div>
               <label
                 htmlFor="description"
@@ -216,17 +191,14 @@ const EditProduct = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe your product..."
                 rows={5}
                 required
-                className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm leading-6 text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
               />
             </div>
 
-            {/* Price + Stock */}
             <div className="grid gap-6 sm:grid-cols-2">
 
-              {/* Price */}
               <div>
                 <label
                   htmlFor="price"
@@ -248,14 +220,12 @@ const EditProduct = () => {
                     step="0.01"
                     value={formData.price}
                     onChange={handleChange}
-                    placeholder="0.00"
                     required
-                    className="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-3 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                    className="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-3 pl-10 pr-4 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
                 </div>
               </div>
 
-              {/* Stock */}
               <div>
                 <label
                   htmlFor="stock"
@@ -271,14 +241,13 @@ const EditProduct = () => {
                   min="0"
                   value={formData.stock}
                   onChange={handleChange}
-                  placeholder="0"
                   required
-                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
+
             </div>
 
-            {/* Category */}
             <div>
               <label
                 htmlFor="category"
@@ -287,60 +256,39 @@ const EditProduct = () => {
                 Category
               </label>
 
-              <input
+              <select
                 id="category"
                 name="category"
-                type="text"
                 value={formData.category}
                 onChange={handleChange}
-                placeholder="e.g. Electronics, Fashion, Accessories"
                 required
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-              />
+                className="w-full cursor-pointer rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+              >
+                <option value="" disabled>
+                  Select a category
+                </option>
+
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Current Image */}
-            {currentImage && (
-              <div>
-                <label className="mb-3 block text-sm font-semibold text-zinc-200">
-                  Current Product Image
-                </label>
-
-                <div className="flex items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-950 p-4">
-                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-zinc-800">
-                    <img
-                      src={currentImage}
-                      alt={formData.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-zinc-300">
-                      Current image
-                    </p>
-
-                    <p className="mt-1 text-xs text-zinc-600">
-                      Upload a new image below if you want to replace it.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Replace Image */}
             <div>
               <label
                 htmlFor="image"
                 className="mb-2 block text-sm font-semibold text-zinc-200"
               >
-                Replace Image
-                <span className="ml-2 font-normal text-zinc-600">
+                Replace Product Image
+                <span className="ml-2 text-xs font-normal text-zinc-500">
                   (Optional)
                 </span>
               </label>
 
-              <div className="rounded-xl border border-dashed border-orange-500/40 bg-orange-500/5 p-6 transition hover:border-orange-500/70">
+              <div className="rounded-xl border border-dashed border-orange-500/40 bg-orange-500/5 p-6">
+
                 <div className="flex flex-col items-center justify-center text-center">
 
                   <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500/10 text-2xl">
@@ -348,18 +296,18 @@ const EditProduct = () => {
                   </div>
 
                   <p className="text-sm font-medium text-zinc-300">
-                    Upload a replacement image
+                    Choose a new image
                   </p>
 
                   <p className="mt-1 text-xs text-zinc-600">
-                    PNG, JPG, JPEG or WEBP
+                    Leave empty to keep the current image
                   </p>
 
                   <label
                     htmlFor="image"
                     className="mt-4 cursor-pointer rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
                   >
-                    Choose New Image
+                    Choose Image
                   </label>
 
                   <input
@@ -376,17 +324,14 @@ const EditProduct = () => {
                       <p className="max-w-xs truncate text-sm text-zinc-300">
                         {image.name}
                       </p>
-
-                      <p className="mt-1 text-xs text-zinc-600">
-                        {(image.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
                     </div>
                   )}
+
                 </div>
+
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col-reverse gap-3 border-t border-zinc-800 pt-6 sm:flex-row sm:justify-end">
 
               <button
@@ -401,15 +346,15 @@ const EditProduct = () => {
               <button
                 type="submit"
                 disabled={updating}
-                className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/10 transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
+                className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
               >
-                {updating
-                  ? "Updating Product..."
-                  : "Update Product"}
+                {updating ? "Updating..." : "Update Product"}
               </button>
 
             </div>
+
           </form>
+
         </div>
       </div>
     </div>

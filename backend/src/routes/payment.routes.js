@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middlewares.js"
+
+import { verifyJWT } from "../middlewares/auth.middlewares.js";
 
 import {
     createPayment,
@@ -11,11 +12,30 @@ import {
 
 const router = Router();
 
-router.post("/create", verifyJWT, createPayment);
+router.post(
+    "/create",
+    verifyJWT,
+    createPayment
+);
 
-router.post("/success", paymentSuccess);
-router.post("/fail", paymentFail);
-router.post("/cancel", paymentCancel);
-router.post("/ipn", paymentIPN);
+router.post(
+    "/success",
+    paymentSuccess
+);
+
+router.post(
+    "/fail",
+    paymentFail
+);
+
+router.post(
+    "/cancel",
+    paymentCancel
+);
+
+router.post(
+    "/ipn",
+    paymentIPN
+);
 
 export default router;

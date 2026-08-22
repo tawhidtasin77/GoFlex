@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/api";
+import { categories } from "../constants/categories";
 
 const AddProduct = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -21,8 +22,8 @@ const AddProduct = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((previousData) => ({
+      ...previousData,
       [name]: value,
     }));
   };
@@ -43,6 +44,11 @@ const AddProduct = () => {
       return;
     }
 
+    if (!formData.category) {
+      alert("Please select a product category.");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -55,23 +61,11 @@ const AddProduct = () => {
       data.append("stock", formData.stock);
       data.append("image", image);
 
-      const response = await api.post("/products", data);
+      await api.post("/products", data);
 
-      if (response.status >= 200 && response.status < 300) {
-        alert("Product created successfully!");
+      alert("Product created successfully!");
 
-        setFormData({
-          name: "",
-          description: "",
-          price: "",
-          category: "",
-          stock: "",
-        });
-
-        setImage(null);
-
-        navigate("/admin");
-      }
+      navigate("/admin/products");
     } catch (error) {
       console.error("Failed to create product:", error);
 
@@ -87,7 +81,7 @@ const AddProduct = () => {
   if (authLoading) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center bg-zinc-950">
-        <p className="text-orange-500">Loading...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-orange-500" />
       </div>
     );
   }
@@ -101,19 +95,18 @@ const AddProduct = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
 
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            type="button"
-            onClick={() => navigate("/admin")}
-            className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
-          >
-            ← Back to Dashboard
-          </button>
+        <button
+          type="button"
+          onClick={() => navigate("/admin")}
+          className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+        >
+          ← Back to Dashboard
+        </button>
 
+        <div className="mb-8">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-2xl ring-1 ring-orange-500/20">
-              📦
+              ➕
             </div>
 
             <div>
@@ -128,16 +121,14 @@ const AddProduct = () => {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-zinc-500">
-            Add a new product to your GoFlex store. Fill in the product
-            information and upload a high-quality image.
+            Add a new product to your GoFlex store.
           </p>
         </div>
 
-        {/* Form */}
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl shadow-black/20 sm:p-8">
+
           <form onSubmit={handleSubmit} className="space-y-6">
 
-            {/* Product Name */}
             <div>
               <label
                 htmlFor="name"
@@ -158,7 +149,6 @@ const AddProduct = () => {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label
                 htmlFor="description"
@@ -179,10 +169,8 @@ const AddProduct = () => {
               />
             </div>
 
-            {/* Price + Stock */}
             <div className="grid gap-6 sm:grid-cols-2">
 
-              {/* Price */}
               <div>
                 <label
                   htmlFor="price"
@@ -211,7 +199,6 @@ const AddProduct = () => {
                 </div>
               </div>
 
-              {/* Stock */}
               <div>
                 <label
                   htmlFor="stock"
@@ -232,9 +219,9 @@ const AddProduct = () => {
                   className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
+
             </div>
 
-            {/* Category */}
             <div>
               <label
                 htmlFor="category"
@@ -243,19 +230,30 @@ const AddProduct = () => {
                 Category
               </label>
 
-              <input
+              <select
                 id="category"
                 name="category"
-                type="text"
                 value={formData.category}
                 onChange={handleChange}
-                placeholder="e.g. Electronics, Fashion, Accessories"
                 required
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
-              />
+                className="w-full cursor-pointer rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+              >
+                <option value="" disabled>
+                  Select a category
+                </option>
+
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+
+              <p className="mt-2 text-xs text-zinc-600">
+                Choose the category that best describes this product.
+              </p>
             </div>
 
-            {/* Image Upload */}
             <div>
               <label
                 htmlFor="image"
@@ -267,6 +265,7 @@ const AddProduct = () => {
               <div className="rounded-xl border border-dashed border-orange-500/40 bg-orange-500/5 p-6 transition hover:border-orange-500/70">
 
                 <div className="flex flex-col items-center justify-center text-center">
+
                   <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500/10 text-2xl">
                     🖼️
                   </div>
@@ -291,6 +290,7 @@ const AddProduct = () => {
                     name="image"
                     type="file"
                     accept="image/*"
+                    required
                     onChange={handleImageChange}
                     className="hidden"
                   />
@@ -306,11 +306,11 @@ const AddProduct = () => {
                       </p>
                     </div>
                   )}
+
                 </div>
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col-reverse gap-3 border-t border-zinc-800 pt-6 sm:flex-row sm:justify-end">
 
               <button
@@ -327,11 +327,13 @@ const AddProduct = () => {
                 disabled={loading}
                 className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/10 transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
               >
-                {loading ? "Uploading & Publishing..." : "Publish Product"}
+                {loading ? "Uploading & Creating..." : "Publish Product"}
               </button>
 
             </div>
+
           </form>
+
         </div>
       </div>
     </div>

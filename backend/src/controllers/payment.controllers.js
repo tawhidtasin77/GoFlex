@@ -335,6 +335,51 @@ const verifyPayment = async (tran_id, val_id) => {
     };
 };
 
+// const paymentSuccess = asyncHandler(async (req, res) => {
+//     const { tran_id, val_id } = req.body;
+
+//     if (!tran_id || !val_id) {
+//         throw new ApiError(
+//             400,
+//             "Transaction ID or validation ID is missing"
+//         );
+//     }
+
+//     const result = await verifyPayment(
+//         tran_id,
+//         val_id
+//     );
+
+//     if (result.alreadyVerified) {
+//         return res
+//             .status(200)
+//             .json(
+//                 new ApiResponse(
+//                     200,
+//                     null,
+//                     "Payment already verified"
+//                 )
+//             );
+//     }
+
+//     return res
+//         .status(200)
+//         .json(
+//             new ApiResponse(
+//                 200,
+//                 {
+//                     transactionId:
+//                         result.payment.transactionId,
+//                     paymentStatus:
+//                         result.payment.paymentStatus,
+//                     orderPaymentStatus:
+//                         result.order.paymentStatus
+//                 },
+//                 "Payment verified successfully"
+//             )
+//         );
+// });
+
 const paymentSuccess = asyncHandler(async (req, res) => {
     const { tran_id, val_id } = req.body;
 
@@ -350,34 +395,17 @@ const paymentSuccess = asyncHandler(async (req, res) => {
         val_id
     );
 
+    const frontendUrl = process.env.FRONTEND_URL;
+
     if (result.alreadyVerified) {
-        return res
-            .status(200)
-            .json(
-                new ApiResponse(
-                    200,
-                    null,
-                    "Payment already verified"
-                )
-            );
+        return res.redirect(
+            `${frontendUrl}/payment-success?transactionId=${tran_id}`
+        );
     }
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                200,
-                {
-                    transactionId:
-                        result.payment.transactionId,
-                    paymentStatus:
-                        result.payment.paymentStatus,
-                    orderPaymentStatus:
-                        result.order.paymentStatus
-                },
-                "Payment verified successfully"
-            )
-        );
+    return res.redirect(
+        `${frontendUrl}/payment-success?transactionId=${result.payment.transactionId}`
+    );
 });
 
 const paymentFail = asyncHandler(async (req, res) => {
