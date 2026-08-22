@@ -1,129 +1,201 @@
-import { Product } from "../models/product.models.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { Product } from "../models/product.models.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import fs from "fs";
 
-const getProducts = asyncHandler(async(req, res) => {
+const getProducts = asyncHandler(async (req, res) => {
     const products = await Product.find({});
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, products, "products fetched successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                products,
+                "Products fetched successfully"
+            )
+        );
 });
 
-const getProductById = asyncHandler(async(req, res) => {
-    const product = await Product.findById(req.params.id);
-    if(!product){
-        throw new ApiError(404, "not found");
+const getFeaturedProducts = asyncHandler(async (req, res) => {
+    const products = await Product.find({
+        stock: { $gt: 0 }
+    })
+    .sort({
+        rating: -1,
+        numReviews: -1,
+        createdAt: -1
+    })
+    .limit(8);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                products,
+                "Featured products fetched successfully"
+            )
+        );
+});
+
+const getProductById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+        throw new ApiError(404, "Product not found");
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, product, "product fetched successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                product,
+                "Product fetched successfully"
+            )
+        );
 });
 
-const createProduct = asyncHandler(async(req, res) => {
-    const { name, price, category, description, stock } = req.body;
+const createProduct = asyncHandler(async (req, res) => {
+    const {
+        name,
+        price,
+        category,
+        description,
+        stock,
+        rating,
+        numReviews
+    } = req.body;
 
-    if([name, price, category, description, stock].some((field) => field?.trim() === "")){
-        throw new ApiError(400, "all fields are required");
+    if (
+        !name ||
+        price === undefined ||
+        !category ||
+        !description ||
+        stock === undefined
+    ) {
+        throw new ApiError(400, "All required product fields are required");
     }
 
-    const imageLocalPath = req.file?.path;
-    // let imageLocalPath;
-    // if(req.files && Array.isArray(req.files.image) && req.files.image.length > 0){
-    //     imageLocalPath = req.files.image[0].path;
-    // }
+    const existingProduct = await Product.findOne({ name });
 
-    if(!imageLocalPath){
-        throw new ApiError(400, "image file is required");
+    if (existingProduct) {
+        throw new ApiError(409, "Product already exists");
     }
 
-    const image = await uploadOnCloudinary(imageLocalPath);
-
-    if(!image){
-        throw new ApiError(500, "something went wrong while uploading image on cloudinary");
+    if (!req.file?.path) {
+        throw new ApiError(400, "Product image is required");
     }
 
-    const product = await Product.create(
-        {
-            name,
-            price,
-            category,
-            description,
-            stock,
-            image: image.url
+    const uploadedImage = await uploadOnCloudinary(req.file.path);
+
+    if (!uploadedImage?.url) {
+        throw new ApiError(500, "Failed to upload product image");
+    }
+
+    const product = await Product.create({
+        name,
+        price: Number(price),
+        category,
+        description,
+        stock: Number(stock),
+        image: uploadedImage.url,
+        rating: rating ? Number(rating) : 0,
+        numReviews: numReviews ? Number(numReviews) : 0
+    });
+
+    return res
+        .status(201)
+        .json(
+            new ApiResponse(
+                201,
+                product,
+                "Product created successfully"
+            )
+        );
+});
+
+const updateProduct = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+        throw new ApiError(404, "Product not found");
+    }
+
+    const {
+        name,
+        price,
+        category,
+        description,
+        stock,
+        rating,
+        numReviews
+    } = req.body;
+
+    if (name !== undefined) product.name = name;
+    if (price !== undefined) product.price = Number(price);
+    if (category !== undefined) product.category = category;
+    if (description !== undefined) product.description = description;
+    if (stock !== undefined) product.stock = Number(stock);
+    if (rating !== undefined) product.rating = Number(rating);
+    if (numReviews !== undefined) product.numReviews = Number(numReviews);
+
+    if (req.file?.path) {
+        const uploadedImage = await uploadOnCloudinary(req.file.path);
+
+        if (!uploadedImage?.url) {
+            throw new ApiError(500, "Failed to upload product image");
         }
-    )
 
-    const createdProduct = await product.save();
+        product.image = uploadedImage.url;
+    }
+
+    await product.save();
 
     return res
-    .status(201)
-    .json(
-        new ApiResponse(200, createdProduct, "product created successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                product,
+                "Product updated successfully"
+            )
+        );
 });
 
-const updateProduct = asyncHandler(async(req, res) => {
-    const {name, price, category, description, stock} = req.body;
+const deleteProduct = asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-    const product = await Product.findById(req.params.id);
-    
-    if(!product){
-        throw new ApiError(404, "product not found");
+    const product = await Product.findById(id);
+
+    if (!product) {
+        throw new ApiError(404, "Product not found");
     }
 
-    product.name = name || product.name;
-    product.price = price || product.price;
-    product.category = category || product.category;
-    product.description = description || product.description;
-    product.stock = stock || product.stock;
-
-    let imageLocalPath;
-    let image;
-    if(req.file){
-        imageLocalPath = req.file?.path;
-        image = await uploadOnCloudinary(imageLocalPath);
-    }
-
-    product.image = image?.url || product.image;
-
-    const updatedProduct = await product.save();
+    await Product.findByIdAndDelete(id);
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, updatedProduct, "product updated successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                null,
+                "Product deleted successfully"
+            )
+        );
 });
-
-const deleteProduct = asyncHandler(async(req, res) => {
-    const product = await Product.findById(req.params.id);
-
-    if(!product){
-        throw new ApiError(404, "product not found");
-    }
-
-    await product.deleteOne();
-
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(200, {}, "product removed successfully")
-    )
-})
 
 export {
     getProducts,
+    getFeaturedProducts,
     getProductById,
     createProduct,
     updateProduct,
     deleteProduct
-}
+};

@@ -1,49 +1,140 @@
 import { Order } from "../models/order.models.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js"
+import { Product } from "../models/product.models.js";
 import { Payment } from "../models/payment.models.js";
+import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { v4 as uuidv4 } from 'uuid';
-import { createSSLCommerzSession, validateSSLCommerzPayment } from "../services/payment.services.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { v4 as uuidv4 } from "uuid";
+import {
+    createSSLCommerzSession,
+    validateSSLCommerzPayment
+} from "../services/payment.services.js";
 
-const createPayment = asyncHandler(async(req, res) => {
+const restoreOrderStock = async (orderId) => {
+    const order = await Order.findOne({
+        _id: orderId,
+        stockRestored: false
+    });
+
+    if (!order) {
+        return;
+    }
+
+    for (const item of order.items) {
+        await Product.findByIdAndUpdate(
+            item.productId,
+            {
+                $inc: {
+                    stock: item.quantity
+                }
+            }
+        );
+    }
+
+    order.stockRestored = true;
+    await order.save();
+};
+
+const createPayment = asyncHandler(async (req, res) => {
     const { orderId } = req.body;
 
-    if(!orderId){
-        throw new ApiError(400, "order id is required");
+    if (!orderId) {
+        throw new ApiError(
+            400,
+            "Order ID is required"
+        );
     }
 
     const order = await Order.findById(orderId);
 
-    if(!order){
-        throw new ApiError(404, "order not found");
+    if (!order) {
+        throw new ApiError(
+            404,
+            "Order not found"
+        );
     }
 
-    if(order.user.toString() !== req.user._id.toString()){
-        throw new ApiError(403, "You are not allowed to pay for this order");
+    if (
+        order.user.toString() !==
+        req.user._id.toString()
+    ) {
+        throw new ApiError(
+            403,
+            "You are not allowed to pay for this order"
+        );
     }
 
-    if(order.paymentStatus === "PAID"){
-        throw new ApiError(400, "the order is already paid");
+    if (order.paymentStatus === "PAID") {
+        throw new ApiError(
+            400,
+            "Order is already paid"
+        );
     }
 
-    const transactionId = `GoFlex_${order._id}_${uuidv4()}`
+    if (
+        order.status === "shipped" ||
+        order.status === "delivered"
+    ) {
+        throw new ApiError(
+            400,
+            "This order cannot be paid"
+        );
+    }
 
-    const payment = await Payment.create(
-        {
-            order: order._id,
-            user: req.user._id,
-            amount: order.totalAmount,
-            currency: "BDT",
-            transactionId,
-            paymentStatus: "PENDING",
-            gateway: "SSLCOMMERZ"
+    if (
+        order.paymentStatus === "FAILED" ||
+        order.paymentStatus === "CANCELLED"
+    ) {
+        if (order.stockRestored) {
+            for (const item of order.items) {
+                const updatedProduct =
+                    await Product.findOneAndUpdate(
+                        {
+                            _id: item.productId,
+                            stock: { $gte: item.quantity }
+                        },
+                        {
+                            $inc: {
+                                stock: -item.quantity
+                            }
+                        },
+                        {
+                            new: true
+                        }
+                    );
+
+                if (!updatedProduct) {
+                    throw new ApiError(
+                        409,
+                        "Product stock is no longer available"
+                    );
+                }
+            }
+
+            order.stockRestored = false;
         }
-    )
+    }
+
+    const transactionId =
+        `GoFlex_${order._id}_${uuidv4()}`;
+
+    const payment = await Payment.create({
+        order: order._id,
+        user: req.user._id,
+        amount: order.totalAmount,
+        currency: "BDT",
+        transactionId,
+        paymentStatus: "PENDING",
+        gateway: "SSLCOMMERZ"
+    });
 
     order.paymentId = transactionId;
-    await order.save({validateBeforeSave: false});
-    
+    order.paymentStatus = "PENDING";
+
+    await order.save({
+        validateBeforeSave: false
+    });
+
     const paymentData = {
         store_id: process.env.SSLCOMMERZ_STORE_ID,
         store_passwd: process.env.SSLCOMMERZ_STORE_PASSWORD,
@@ -52,10 +143,17 @@ const createPayment = asyncHandler(async(req, res) => {
         currency: "BDT",
         tran_id: transactionId,
 
-        success_url: `${process.env.BACKEND_URL}/api/v1/payments/success`,
-        fail_url: `${process.env.BACKEND_URL}/api/v1/payments/fail`,
-        cancel_url: `${process.env.BACKEND_URL}/api/v1/payments/cancel`,
-        ipn_url: `${process.env.BACKEND_URL}/api/v1/payments/ipn`,
+        success_url:
+            `${process.env.BACKEND_URL}/api/v1/payments/success`,
+
+        fail_url:
+            `${process.env.BACKEND_URL}/api/v1/payments/fail`,
+
+        cancel_url:
+            `${process.env.BACKEND_URL}/api/v1/payments/cancel`,
+
+        ipn_url:
+            `${process.env.BACKEND_URL}/api/v1/payments/ipn`,
 
         cus_name: order.address.fullName,
         cus_email: req.user.email,
@@ -65,6 +163,7 @@ const createPayment = asyncHandler(async(req, res) => {
         cus_country: order.address.country,
 
         shipping_method: "YES",
+
         ship_name: order.address.fullName,
         ship_add1: order.address.street,
         ship_city: order.address.city,
@@ -76,44 +175,66 @@ const createPayment = asyncHandler(async(req, res) => {
         product_profile: "general"
     };
 
-    const sslResponse = await createSSLCommerzSession(paymentData);
+    try {
+        const sslResponse =
+            await createSSLCommerzSession(paymentData);
 
-    if (sslResponse.status !== "SUCCESS") {
+        if (sslResponse.status !== "SUCCESS") {
+            payment.paymentStatus = "FAILED";
+            await payment.save();
+
+            order.paymentStatus = "FAILED";
+            await order.save({
+                validateBeforeSave: false
+            });
+
+            await restoreOrderStock(order._id);
+
+            throw new ApiError(
+                500,
+                sslResponse.failedreason ||
+                "Failed to create payment session"
+            );
+        }
+
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    {
+                        paymentId: payment._id,
+                        transactionId,
+                        gatewayPageURL:
+                            sslResponse.GatewayPageURL
+                    },
+                    "Payment session created successfully"
+                )
+            );
+    } catch (error) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
+
         payment.paymentStatus = "FAILED";
         await payment.save();
 
+        order.paymentStatus = "FAILED";
+
+        await order.save({
+            validateBeforeSave: false
+        });
+
+        await restoreOrderStock(order._id);
+
         throw new ApiError(
             500,
-            sslResponse.failedreason || "Failed to create payment session"
+            "Unable to create payment session"
         );
     }
+});
 
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            {
-                paymentId: payment._id,
-                transactionId,
-                gatewayPageURL: sslResponse.GatewayPageURL
-            },
-            "Payment session created successfully"
-        )
-    );
-})
-
-const paymentSuccess = asyncHandler(async (req, res) => {
-
-    const { tran_id, val_id } = req.body;
-
-    if (!tran_id || !val_id) {
-        throw new ApiError(
-            400,
-            "Transaction ID or validation ID is missing"
-        );
-    }
-
+const verifyPayment = async (tran_id, val_id) => {
     const payment = await Payment.findOne({
         transactionId: tran_id
     });
@@ -121,27 +242,36 @@ const paymentSuccess = asyncHandler(async (req, res) => {
     if (!payment) {
         throw new ApiError(
             404,
-            "Payment record not found"
+            "Payment not found"
         );
     }
 
     if (payment.paymentStatus === "SUCCESS") {
-        return res.status(200).json(
-            new ApiResponse(
-                200,
-                null,
-                "Payment already verified"
-            )
-        );
+        return {
+            payment,
+            alreadyVerified: true
+        };
     }
 
     const validationResponse =
         await validateSSLCommerzPayment(val_id);
 
     if (validationResponse.status !== "VALID") {
-
         payment.paymentStatus = "FAILED";
         await payment.save();
+
+        const order = await Order.findById(
+            payment.order
+        );
+
+        if (order) {
+            order.paymentStatus = "FAILED";
+            await order.save({
+                validateBeforeSave: false
+            });
+
+            await restoreOrderStock(order._id);
+        }
 
         throw new ApiError(
             400,
@@ -149,8 +279,10 @@ const paymentSuccess = asyncHandler(async (req, res) => {
         );
     }
 
-    if (validationResponse.tran_id !== payment.transactionId) {
-
+    if (
+        validationResponse.tran_id !==
+        payment.transactionId
+    ) {
         throw new ApiError(
             400,
             "Transaction ID mismatch"
@@ -161,15 +293,16 @@ const paymentSuccess = asyncHandler(async (req, res) => {
         Number(validationResponse.amount) !==
         Number(payment.amount)
     ) {
-
         throw new ApiError(
             400,
             "Payment amount mismatch"
         );
     }
 
-    if (validationResponse.currency !== payment.currency) {
-
+    if (
+        validationResponse.currency !==
+        payment.currency
+    ) {
         throw new ApiError(
             400,
             "Payment currency mismatch"
@@ -179,7 +312,9 @@ const paymentSuccess = asyncHandler(async (req, res) => {
     payment.paymentStatus = "SUCCESS";
     await payment.save();
 
-    const order = await Order.findById(payment.order);
+    const order = await Order.findById(
+        payment.order
+    );
 
     if (!order) {
         throw new ApiError(
@@ -189,152 +324,268 @@ const paymentSuccess = asyncHandler(async (req, res) => {
     }
 
     order.paymentStatus = "PAID";
+    order.status = "processing";
+
     await order.save();
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                transactionId: payment.transactionId,
-                paymentStatus: payment.paymentStatus,
-                orderPaymentStatus: order.paymentStatus
-            },
-            "Payment verified successfully"
-        )
+    return {
+        payment,
+        order,
+        alreadyVerified: false
+    };
+};
+
+const paymentSuccess = asyncHandler(async (req, res) => {
+    const { tran_id, val_id } = req.body;
+
+    if (!tran_id || !val_id) {
+        throw new ApiError(
+            400,
+            "Transaction ID or validation ID is missing"
+        );
+    }
+
+    const result = await verifyPayment(
+        tran_id,
+        val_id
     );
+
+    if (result.alreadyVerified) {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    null,
+                    "Payment already verified"
+                )
+            );
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    transactionId:
+                        result.payment.transactionId,
+                    paymentStatus:
+                        result.payment.paymentStatus,
+                    orderPaymentStatus:
+                        result.order.paymentStatus
+                },
+                "Payment verified successfully"
+            )
+        );
 });
 
 const paymentFail = asyncHandler(async (req, res) => {
-    console.log("PAYMENT FAILED");
-    console.log(req.body);
-
     const { tran_id } = req.body;
+
+    if (!tran_id) {
+        throw new ApiError(
+            400,
+            "Transaction ID is required"
+        );
+    }
 
     const payment = await Payment.findOne({
         transactionId: tran_id
     });
 
     if (!payment) {
-        throw new ApiError(404, "Payment not found");
+        throw new ApiError(
+            404,
+            "Payment not found"
+        );
+    }
+
+    if (payment.paymentStatus === "SUCCESS") {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    null,
+                    "Payment already successful"
+                )
+            );
     }
 
     payment.paymentStatus = "FAILED";
     await payment.save();
 
-    await Order.findByIdAndUpdate(
-        payment.order,
-        {
-            paymentStatus: "FAILED"
-        }
+    const order = await Order.findById(
+        payment.order
     );
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                paymentStatus: payment.paymentStatus,
-                transactionId: payment.transactionId
-            },
-            "Payment failed successfully"
-        )
-    );
+    if (order) {
+        order.paymentStatus = "FAILED";
+
+        await order.save({
+            validateBeforeSave: false
+        });
+
+        await restoreOrderStock(order._id);
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    transactionId:
+                        payment.transactionId,
+                    paymentStatus:
+                        payment.paymentStatus
+                },
+                "Payment failed successfully"
+            )
+        );
 });
 
 const paymentCancel = asyncHandler(async (req, res) => {
-    console.log("PAYMENT CANCELLED");
-    console.log(req.body);
-
     const { tran_id } = req.body;
+
+    if (!tran_id) {
+        throw new ApiError(
+            400,
+            "Transaction ID is required"
+        );
+    }
 
     const payment = await Payment.findOne({
         transactionId: tran_id
     });
 
     if (!payment) {
-        throw new ApiError(404, "Payment not found");
+        throw new ApiError(
+            404,
+            "Payment not found"
+        );
+    }
+
+    if (payment.paymentStatus === "SUCCESS") {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    null,
+                    "Payment already successful"
+                )
+            );
     }
 
     payment.paymentStatus = "CANCELLED";
     await payment.save();
 
-    await Order.findByIdAndUpdate(
-        payment.order,
-        {
-            paymentStatus: "CANCELLED"
-        }
+    const order = await Order.findById(
+        payment.order
     );
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                transactionId: payment.transactionId,
-                paymentStatus: payment.paymentStatus
-            },
-            "Payment cancelled successfully"
-        )
-    );
+    if (order) {
+        order.paymentStatus = "CANCELLED";
+
+        await order.save({
+            validateBeforeSave: false
+        });
+
+        await restoreOrderStock(order._id);
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    transactionId:
+                        payment.transactionId,
+                    paymentStatus:
+                        payment.paymentStatus
+                },
+                "Payment cancelled successfully"
+            )
+        );
 });
 
 const paymentIPN = asyncHandler(async (req, res) => {
-    console.log("PAYMENT IPN");
-    console.log(req.body);
+    const {
+        tran_id,
+        val_id,
+        status
+    } = req.body;
 
-    const { tran_id, status } = req.body;
+    if (!tran_id) {
+        throw new ApiError(
+            400,
+            "Transaction ID is required"
+        );
+    }
 
     const payment = await Payment.findOne({
         transactionId: tran_id
     });
 
     if (!payment) {
-        throw new ApiError(404, "Payment not found");
+        throw new ApiError(
+            404,
+            "Payment not found"
+        );
     }
 
     if (payment.paymentStatus === "SUCCESS") {
-        return res.status(200).json(
-            new ApiResponse(
-                200,
-                null,
-                "Payment already verified"
-            )
-        );
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    null,
+                    "Payment already verified"
+                )
+            );
     }
 
-    if (status === "VALID") {
-        payment.paymentStatus = "SUCCESS";
-        await payment.save();
-
-        await Order.findByIdAndUpdate(
-            payment.order,
-            {
-                paymentStatus: "PAID"
-            }
+    if (status === "VALID" && val_id) {
+        const result = await verifyPayment(
+            tran_id,
+            val_id
         );
 
-        return res.status(200).json(
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    {
+                        transactionId:
+                            result.payment.transactionId,
+                        paymentStatus:
+                            result.payment.paymentStatus
+                    },
+                    "Payment IPN processed successfully"
+                )
+            );
+    }
+
+    return res
+        .status(200)
+        .json(
             new ApiResponse(
                 200,
                 {
-                    transactionId: payment.transactionId,
-                    paymentStatus: payment.paymentStatus
+                    transactionId:
+                        payment.transactionId,
+                    paymentStatus:
+                        payment.paymentStatus
                 },
-                "Payment IPN processed successfully"
+                "Payment IPN received"
             )
         );
-    }
-
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                transactionId: payment.transactionId,
-                paymentStatus: payment.paymentStatus
-            },
-            "Payment IPN received but transaction is not valid"
-        )
-    );
 });
-
 
 export {
     createPayment,
