@@ -52,7 +52,7 @@ const Home = () => {
   return (
     <main className="min-h-screen bg-zinc-950 text-white">
 
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+      <section className="!mx-auto max-w-11/12 px-5 py-16 sm:py-20">
         <div className="rounded-3xl border border-orange-500/10 bg-gradient-to-br from-zinc-900 via-zinc-900 to-orange-950/20 px-6 py-16 text-center shadow-2xl sm:px-10">
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
             Welcome to GoFlex
@@ -63,14 +63,14 @@ const Home = () => {
             <span className="text-orange-500"> Shop GoFlex.</span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">
+          <p className="!mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">
             Discover quality products at great prices and enjoy a simple,
             secure shopping experience.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 pb-16">
+      <section className="!mx-auto max-w-6xl px-5 pb-16">
 
         <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
 

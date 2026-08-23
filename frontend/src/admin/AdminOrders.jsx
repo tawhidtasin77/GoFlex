@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { api } from "../api/api";
 
 const AdminOrders = () => {
@@ -46,16 +46,18 @@ const AdminOrders = () => {
     try {
       setUpdatingOrder(id);
 
-      await api.put(`/orders/${id}/status`, {
+      const response = await api.put(`/orders/${id}/status`, {
         status,
       });
+
+      const updatedOrder = response.data.data;
 
       setOrders((previousOrders) =>
         previousOrders.map((order) =>
           order._id === id
             ? {
                 ...order,
-                status,
+                ...updatedOrder,
               }
             : order
         )
@@ -74,18 +76,30 @@ const AdminOrders = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Delivered":
+      case "delivered":
         return "bg-green-500/10 text-green-400 ring-green-500/20";
 
-      case "Shipped":
+      case "shipped":
         return "bg-blue-500/10 text-blue-400 ring-blue-500/20";
 
-      case "Pending":
+      case "processing":
+        return "bg-orange-500/10 text-orange-400 ring-orange-500/20";
+
+      case "pending":
         return "bg-yellow-500/10 text-yellow-400 ring-yellow-500/20";
+
+      case "cancelled":
+        return "bg-red-500/10 text-red-400 ring-red-500/20";
 
       default:
         return "bg-zinc-800 text-zinc-400 ring-zinc-700";
     }
+  };
+
+  const formatStatus = (status) => {
+    if (!status) return "Unknown";
+
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   if (authLoading || loading) {
@@ -110,7 +124,6 @@ const AdminOrders = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
 
-        {/* Header */}
         <div className="mb-8">
           <button
             type="button"
@@ -141,10 +154,8 @@ const AdminOrders = () => {
           </p>
         </div>
 
-        {/* Orders Card */}
         <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/20">
 
-          {/* Card Header */}
           <div className="flex flex-col gap-3 border-b border-zinc-800 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="font-bold text-white">
@@ -162,7 +173,6 @@ const AdminOrders = () => {
             </div>
           </div>
 
-          {/* Empty State */}
           {orders.length === 0 ? (
             <div className="flex min-h-[300px] flex-col items-center justify-center px-6 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 text-3xl">
@@ -180,9 +190,11 @@ const AdminOrders = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
+              <table className="w-full min-w-[900px]">
+
                 <thead>
                   <tr className="border-b border-zinc-800 bg-zinc-950/50">
+
                     <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       ORDER ID
                     </th>
@@ -202,6 +214,7 @@ const AdminOrders = () => {
                     <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       STATUS
                     </th>
+
                   </tr>
                 </thead>
 
@@ -211,36 +224,33 @@ const AdminOrders = () => {
                       key={order._id}
                       className="border-b border-zinc-800 transition hover:bg-zinc-800/30"
                     >
-                      {/* Order ID */}
+
                       <td className="px-6 py-5">
                         <span className="font-mono text-sm text-zinc-300">
                           #{order._id.substring(0, 8)}
                         </span>
                       </td>
 
-                      {/* Customer */}
                       <td className="px-6 py-5">
                         <div>
                           <p className="font-medium text-white">
-                            {order.userId?.name || "Deleted User"}
+                            {order.user?.name || "Deleted User"}
                           </p>
 
-                          {order.userId?.email && (
+                          {order.user?.email && (
                             <p className="mt-1 text-xs text-zinc-500">
-                              {order.userId.email}
+                              {order.user.email}
                             </p>
                           )}
                         </div>
                       </td>
 
-                      {/* Total */}
                       <td className="px-6 py-5">
                         <span className="font-semibold text-orange-500">
                           ৳{Number(order.totalAmount || 0).toFixed(2)}
                         </span>
                       </td>
 
-                      {/* Date */}
                       <td className="px-6 py-5">
                         <div>
                           <p className="text-sm text-zinc-300">
@@ -260,7 +270,6 @@ const AdminOrders = () => {
                         </div>
                       </td>
 
-                      {/* Status */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
 
@@ -269,7 +278,7 @@ const AdminOrders = () => {
                               order.status
                             )}`}
                           >
-                            {order.status}
+                            {formatStatus(order.status)}
                           </span>
 
                           <select
@@ -283,36 +292,47 @@ const AdminOrders = () => {
                             }
                             className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            <option value="Pending">
+                            <option value="pending">
                               Pending
                             </option>
 
-                            <option value="Shipped">
+                            <option value="processing">
+                              Processing
+                            </option>
+
+                            <option value="shipped">
                               Shipped
                             </option>
 
-                            <option value="Delivered">
+                            <option value="delivered">
                               Delivered
+                            </option>
+
+                            <option value="cancelled">
+                              Cancelled
                             </option>
                           </select>
 
                         </div>
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           )}
+
         </div>
 
-        {/* Footer Info */}
         {orders.length > 0 && (
           <div className="mt-5 flex items-center gap-2 text-xs text-zinc-600">
             <span className="h-2 w-2 rounded-full bg-orange-500" />
             Changes to order status are saved immediately.
           </div>
         )}
+
       </div>
     </div>
   );

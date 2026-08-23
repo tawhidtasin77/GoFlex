@@ -158,7 +158,7 @@ const ProductDetail = () => {
                     −
                   </button>
 
-                  <span className="min-w-12 border-x border-gray-300 px-4 py-2 text-center font-semibold">
+                  <span className="min-w-12 text-black border-x border-gray-300 px-4 py-2 text-center font-semibold">
                     {quantity}
                   </span>
 
