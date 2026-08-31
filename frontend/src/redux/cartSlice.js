@@ -1,6 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const getCartKey = (userId) => `cartItems_${userId}`;
+const getCartKey = (userId) => {
+  return userId
+    ? `cartItems_${userId}`
+    : "cartItems_guest";
+};
 
 const initialState = {
   cartItems: [],
@@ -9,12 +13,12 @@ const initialState = {
 
 const cartSlice = createSlice({
   name: "cart",
-
   initialState,
 
   reducers: {
+    
     setUserCart: (state, action) => {
-      const { userId } = action.payload;
+      const userId = action.payload?.userId || null;
 
       state.userId = userId;
 
@@ -30,44 +34,44 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const item = action.payload;
 
-      const existItem = state.cartItems.find(
-        (x) => x.productId === item.productId
+      if (!item || !item.productId) return;
+
+      const existingItemIndex = state.cartItems.findIndex(
+        (cartItem) =>
+          cartItem.productId === item.productId
       );
 
-      if (existItem) {
-        state.cartItems = state.cartItems.map((x) =>
-          x.productId === item.productId
-            ? item
-            : x
-        );
+      if (existingItemIndex !== -1) {
+        state.cartItems[existingItemIndex] = item;
       } else {
         state.cartItems.push(item);
       }
 
-      if (state.userId) {
-        localStorage.setItem(
-          getCartKey(state.userId),
-          JSON.stringify(state.cartItems)
-        );
-      }
+      localStorage.setItem(
+        getCartKey(state.userId),
+        JSON.stringify(state.cartItems)
+      );
     },
 
     removeFromCart: (state, action) => {
+      const productId = action.payload;
+
       state.cartItems = state.cartItems.filter(
-        (x) => x.productId !== action.payload
+        (item) => item.productId !== productId
       );
 
-      if (state.userId) {
-        localStorage.setItem(
-          getCartKey(state.userId),
-          JSON.stringify(state.cartItems)
-        );
-      }
+      localStorage.setItem(
+        getCartKey(state.userId),
+        JSON.stringify(state.cartItems)
+      );
     },
 
     clearCart: (state) => {
       state.cartItems = [];
-      state.userId = null;
+
+      localStorage.removeItem(
+        getCartKey(state.userId)
+      );
     },
   },
 });

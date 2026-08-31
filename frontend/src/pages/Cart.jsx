@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import {
   removeFromCart,
   addToCart,
@@ -120,7 +120,7 @@ const Cart = () => {
                         onClick={() =>
                           handleRemove(item.productId)
                         }
-                        className="text-sm font-medium text-red-500 transition hover:text-red-600"
+                        className="text-sm hover:cursor-pointer font-medium text-red-500 transition hover:text-red-600"
                       >
                         Remove
                       </button>

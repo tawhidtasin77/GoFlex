@@ -1,17 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { api } from "../api/api";
 
 const AdminDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ========================================
+  // FETCH DASHBOARD STATS
+  // ========================================
+
   useEffect(() => {
-    if (!user) return;
+    if (authLoading) return;
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
     if (user.role !== "admin") {
       navigate("/");
@@ -20,11 +29,16 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
       try {
+        setLoading(true);
+
         const response = await api.get("/analytics");
 
         setStats(response.data.data);
       } catch (error) {
-        console.error("Failed to fetch dashboard statistics:", error);
+        console.error(
+          "Failed to fetch dashboard statistics:",
+          error
+        );
 
         if (error.response?.status === 401) {
           navigate("/login");
@@ -43,19 +57,41 @@ const AdminDashboard = () => {
     };
 
     fetchStats();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
-  if (!user) {
+  // ========================================
+  // AUTH LOADING
+  // ========================================
+
+  if (authLoading) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <p className="text-orange-500">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+        <p className="text-orange-500">
+          Loading...
+        </p>
       </div>
     );
   }
 
+  // ========================================
+  // NOT LOGGED IN
+  // ========================================
+
+  if (!user) {
+    return null;
+  }
+
+  // ========================================
+  // NOT ADMIN
+  // ========================================
+
   if (user.role !== "admin") {
     return null;
   }
+
+  // ========================================
+  // DASHBOARD CARDS
+  // ========================================
 
   const dashboardCards = [
     {
@@ -78,11 +114,17 @@ const AdminDashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `৳${(stats?.totalRevenue ?? 0).toFixed(2)}`,
+      value: `৳${Number(
+        stats?.totalRevenue ?? 0
+      ).toFixed(2)}`,
       icon: "💰",
       description: "Total earnings",
     },
   ];
+
+  // ========================================
+  // ADMIN CONTROLS
+  // ========================================
 
   const adminControls = [
     {
@@ -110,21 +152,34 @@ const AdminDashboard = () => {
       icon: "👥",
       path: "/admin/users",
     },
+    {
+      title: "Return Requests",
+      description:
+        "Review and manage customer return requests",
+      icon: "↩️",
+      path: "/admin/returns",
+      primary: false,
+    },
   ];
 
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
 
-        {/* Header */}
+        {/* ========================================
+            HEADER
+        ======================================== */}
+
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
           <div>
             <div className="mb-2 flex items-center gap-3">
-              <img
-                src="/ShopNestLogo.png"
-                alt="GoFlex"
-                className="h-11 w-11 rounded-xl object-cover shadow-lg shadow-orange-500/20"
-              />
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 ring-1 ring-orange-500/20">
+                <span className="text-xl font-black text-orange-500">
+                  G
+                </span>
+              </div>
 
               <div>
                 <p className="text-sm font-medium text-orange-500">
@@ -135,12 +190,13 @@ const AdminDashboard = () => {
                   Admin Dashboard
                 </h1>
               </div>
+
             </div>
 
             <p className="mt-3 text-zinc-400">
               Welcome back,{" "}
               <span className="font-semibold text-white">
-                {user?.name}
+                {user.name}
               </span>
               . Here's what's happening with your store.
             </p>
@@ -153,10 +209,15 @@ const AdminDashboard = () => {
           >
             View Store
           </button>
+
         </div>
 
-        {/* Statistics */}
+        {/* ========================================
+            STORE OVERVIEW
+        ======================================== */}
+
         <section>
+
           <div className="mb-5">
             <h2 className="text-xl font-bold text-white">
               Store Overview
@@ -168,22 +229,31 @@ const AdminDashboard = () => {
           </div>
 
           {loading ? (
+
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
               {[1, 2, 3, 4].map((item) => (
                 <div
                   key={item}
                   className="h-40 animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900"
                 />
               ))}
+
             </div>
+
           ) : (
+
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
               {dashboardCards.map((card) => (
+
                 <div
                   key={card.title}
                   className="group rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl shadow-black/10 transition duration-300 hover:-translate-y-1 hover:border-orange-500/40"
                 >
+
                   <div className="flex items-start justify-between">
+
                     <div>
                       <p className="text-sm font-medium text-zinc-400">
                         {card.title}
@@ -197,19 +267,26 @@ const AdminDashboard = () => {
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10 text-xl ring-1 ring-orange-500/20">
                       {card.icon}
                     </div>
+
                   </div>
 
                   <p className="mt-5 text-xs text-zinc-500">
                     {card.description}
                   </p>
+
                 </div>
+
               ))}
+
             </div>
+
           )}
+
         </section>
 
-        {/* Administrative Controls */}
+
         <section className="mt-12">
+
           <div className="mb-5">
             <h2 className="text-xl font-bold text-white">
               Administrative Controls
@@ -220,8 +297,10 @@ const AdminDashboard = () => {
             </p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
             {adminControls.map((control) => (
+
               <button
                 key={control.title}
                 type="button"
@@ -232,6 +311,7 @@ const AdminDashboard = () => {
                     : "border-zinc-800 bg-zinc-900 hover:border-zinc-600"
                 }`}
               >
+
                 <div
                   className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl text-xl ${
                     control.primary
@@ -253,22 +333,31 @@ const AdminDashboard = () => {
                 <div className="mt-5 text-sm font-semibold text-orange-500 transition group-hover:text-orange-400">
                   Open →
                 </div>
+
               </button>
+
             ))}
+
           </div>
+
         </section>
 
-        {/* Quick Info */}
+        {/* ========================================
+            QUICK INFO
+        ======================================== */}
+
         <section className="mt-12 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
+
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
             <div>
               <h2 className="text-lg font-bold text-white">
                 GoFlex Store Management
               </h2>
 
               <p className="mt-1 text-sm text-zinc-500">
-                Use the controls above to manage products, orders and
-                customers.
+                Use the controls above to manage products,
+                orders, customers, and return requests.
               </p>
             </div>
 
@@ -279,8 +368,11 @@ const AdminDashboard = () => {
             >
               Visit GoFlex
             </button>
+
           </div>
+
         </section>
+
       </div>
     </div>
   );

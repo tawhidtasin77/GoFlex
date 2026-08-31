@@ -60,7 +60,7 @@ const Shop = () => {
           </p>
         </div>
 
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row">
+        <div className="mb-8 flex justify-between flex-col gap-4 sm:flex-row">
 
           <input
             type="text"

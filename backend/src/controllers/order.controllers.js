@@ -27,12 +27,16 @@ const createOrder = asyncHandler(async (req, res) => {
 
         const productIds = [
             ...new Set(
-                items.map((item) => item.productId.toString())
+                items.map(
+                    (item) => item.productId.toString()
+                )
             )
         ];
 
         const products = await Product.find({
-            _id: { $in: productIds }
+            _id: {
+                $in: productIds
+            }
         }).session(session);
 
         if (products.length !== productIds.length) {
@@ -45,10 +49,14 @@ const createOrder = asyncHandler(async (req, res) => {
         const productMap = new Map();
 
         products.forEach((product) => {
-            productMap.set(product._id.toString(), product);
+            productMap.set(
+                product._id.toString(),
+                product
+            );
         });
 
         let totalAmount = 0;
+
         const orderItems = [];
 
         for (const item of items) {
@@ -57,12 +65,18 @@ const createOrder = asyncHandler(async (req, res) => {
             );
 
             if (!product) {
-                throw new ApiError(404, "Product not found");
+                throw new ApiError(
+                    404,
+                    "Product not found"
+                );
             }
 
             const quantity = Number(item.quantity);
 
-            if (!Number.isInteger(quantity) || quantity < 1) {
+            if (
+                !Number.isInteger(quantity) ||
+                quantity < 1
+            ) {
                 throw new ApiError(
                     400,
                     `Invalid quantity for ${product.name}`
@@ -76,7 +90,8 @@ const createOrder = asyncHandler(async (req, res) => {
                 );
             }
 
-            const itemTotal = product.price * quantity;
+            const itemTotal =
+                product.price * quantity;
 
             totalAmount += itemTotal;
 
@@ -87,22 +102,26 @@ const createOrder = asyncHandler(async (req, res) => {
             });
         }
 
+
         for (const item of orderItems) {
-            const updatedProduct = await Product.findOneAndUpdate(
-                {
-                    _id: item.productId,
-                    stock: { $gte: item.quantity }
-                },
-                {
-                    $inc: {
-                        stock: -item.quantity
+            const updatedProduct =
+                await Product.findOneAndUpdate(
+                    {
+                        _id: item.productId,
+                        stock: {
+                            $gte: item.quantity
+                        }
+                    },
+                    {
+                        $inc: {
+                            stock: -item.quantity
+                        }
+                    },
+                    {
+                        returnDocument: "after",
+                        session
                     }
-                },
-                {
-                    new: true,
-                    session
-                }
-            );
+                );
 
             if (!updatedProduct) {
                 throw new ApiError(
@@ -111,6 +130,7 @@ const createOrder = asyncHandler(async (req, res) => {
                 );
             }
         }
+
 
         const order = await Order.create(
             [
@@ -124,18 +144,23 @@ const createOrder = asyncHandler(async (req, res) => {
                     stockRestored: false
                 }
             ],
-            { session }
+            {
+                session
+            }
         );
 
         createdOrder = order[0];
 
         await session.commitTransaction();
+
     } catch (error) {
         await session.abortTransaction();
         throw error;
+
     } finally {
         await session.endSession();
     }
+
 
     try {
         const html = orderHTML(
@@ -148,6 +173,7 @@ const createOrder = asyncHandler(async (req, res) => {
             "Order Created Successfully 🎉",
             html
         );
+
     } catch (error) {
         console.error(
             "Order email failed:",
@@ -166,6 +192,7 @@ const createOrder = asyncHandler(async (req, res) => {
         );
 });
 
+
 const myOrders = asyncHandler(async (req, res) => {
     const orders = await Order.find({
         user: req.user._id
@@ -174,7 +201,9 @@ const myOrders = asyncHandler(async (req, res) => {
             "items.productId",
             "name price image"
         )
-        .sort({ createdAt: -1 });
+        .sort({
+            createdAt: -1
+        });
 
     return res
         .status(200)
@@ -187,14 +216,20 @@ const myOrders = asyncHandler(async (req, res) => {
         );
 });
 
+
 const getOrders = asyncHandler(async (req, res) => {
     const orders = await Order.find({})
-        .populate("user", "name email")
+        .populate(
+            "user",
+            "name email"
+        )
         .populate(
             "items.productId",
             "name price image"
         )
-        .sort({ createdAt: -1 });
+        .sort({
+            createdAt: -1
+        });
 
     return res
         .status(200)
@@ -206,6 +241,7 @@ const getOrders = asyncHandler(async (req, res) => {
             )
         );
 });
+
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
@@ -218,6 +254,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         "cancelled"
     ];
 
+
     if (!allowedStatuses.includes(status)) {
         throw new ApiError(
             400,
@@ -225,7 +262,10 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         );
     }
 
-    const order = await Order.findById(req.params.id);
+
+    const order = await Order.findById(
+        req.params.id
+    );
 
     if (!order) {
         throw new ApiError(
@@ -244,6 +284,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         );
     }
 
+
     if (
         status === "cancelled" &&
         order.status === "delivered"
@@ -254,9 +295,21 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         );
     }
 
+
     order.status = status;
 
     await order.save();
+
+
+    await order.populate(
+        "user",
+        "name email"
+    );
+
+    await order.populate(
+        "items.productId",
+        "name price image"
+    );
 
     return res
         .status(200)
@@ -268,6 +321,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
             )
         );
 });
+
 
 export {
     createOrder,

@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../api/api";
+import Toast from "../components/Toast";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -13,6 +14,8 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const [toast, setToast] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,31 +37,32 @@ const Login = () => {
         password: formData.password,
       });
 
-      /*
-        Your backend returns:
-
-        response.data.data = {
-          user,
-          accessToken,
-          refreshToken
-        }
-      */
-
       const userData = response.data.data;
 
-      // Save logged-in user in AuthContext
       login(userData.user);
 
-      // Go to home page
-      navigate("/");
+      setToast({
+        type: "success",
+        message: "Welcome back! You have successfully logged in.",
+      });
+
+      // Navigate after toast animation finishes
+      setTimeout(() => {
+        navigate("/");
+      }, 3400);
+
     } catch (error) {
       console.error("Login error:", error);
 
       const message =
         error.response?.data?.message ||
-        "Something went wrong while logging in.";
+        "We couldn't log you in. Please check your email and password.";
 
-      alert(message);
+      setToast({
+        type: "error",
+        message,
+      });
+
     } finally {
       setLoading(false);
     }
@@ -67,9 +71,16 @@ const Login = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10">
 
-      <div className="w-full max-w-md">
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          duration={3000}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-        {/* Logo / Heading */}
+      <div className="w-full max-w-md">
 
         <div className="mb-8 text-center">
 
@@ -83,9 +94,6 @@ const Login = () => {
 
         </div>
 
-
-        {/* Login Card */}
-
         <form
           onSubmit={handleSubmit}
           className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl sm:p-8"
@@ -94,7 +102,6 @@ const Login = () => {
           <h2 className="mb-6 text-2xl font-semibold text-white">
             Login
           </h2>
-
 
           {/* Email */}
 
@@ -121,7 +128,6 @@ const Login = () => {
 
           </div>
 
-
           {/* Password */}
 
           <div className="mb-6">
@@ -147,9 +153,6 @@ const Login = () => {
 
           </div>
 
-
-          {/* Login Button */}
-
           <button
             type="submit"
             disabled={loading}
@@ -157,9 +160,6 @@ const Login = () => {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-
-
-          {/* Register */}
 
           <p className="mt-6 text-center text-sm text-zinc-400">
 
@@ -177,7 +177,6 @@ const Login = () => {
         </form>
 
       </div>
-
     </div>
   );
 };

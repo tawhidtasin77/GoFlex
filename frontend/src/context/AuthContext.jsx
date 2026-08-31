@@ -8,10 +8,7 @@ import { useDispatch } from "react-redux";
 
 import { api } from "../api/api";
 
-import {
-  setUserCart,
-  clearCart,
-} from "../redux/cartSlice";
+import { setUserCart } from "../redux/cartSlice";
 
 export const AuthContext = createContext();
 
@@ -42,7 +39,11 @@ export const AuthProvider = ({ children }) => {
 
         setUser(null);
 
-        dispatch(clearCart());
+        dispatch(
+          setUserCart({
+            userId: null,
+          })
+        );
       } finally {
         setLoading(false);
       }
@@ -69,7 +70,11 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setUser(null);
 
-      dispatch(clearCart());
+      dispatch(
+        setUserCart({
+          userId: null,
+        })
+      );
     }
   };
 

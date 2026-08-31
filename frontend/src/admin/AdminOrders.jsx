@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../api/api";
 
@@ -96,6 +96,28 @@ const AdminOrders = () => {
     }
   };
 
+  const getPaymentStatusStyle = (status) => {
+    switch (status) {
+      case "PAID":
+        return "bg-green-500/10 text-green-400 ring-green-500/20";
+
+      case "PENDING":
+        return "bg-yellow-500/10 text-yellow-400 ring-yellow-500/20";
+
+      case "FAILED":
+        return "bg-red-500/10 text-red-400 ring-red-500/20";
+
+      case "CANCELLED":
+        return "bg-orange-500/10 text-orange-400 ring-orange-500/20";
+
+      case "REFUNDED":
+        return "bg-purple-500/10 text-purple-400 ring-purple-500/20";
+
+      default:
+        return "bg-zinc-800 text-zinc-400 ring-zinc-700";
+    }
+  };
+
   const formatStatus = (status) => {
     if (!status) return "Unknown";
 
@@ -150,7 +172,8 @@ const AdminOrders = () => {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-zinc-500">
-            View customer orders and update their delivery status.
+            View customer orders, payment status, and update their delivery
+            status.
           </p>
         </div>
 
@@ -190,7 +213,7 @@ const AdminOrders = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px]">
+              <table className="w-full min-w-[1100px]">
 
                 <thead>
                   <tr className="border-b border-zinc-800 bg-zinc-950/50">
@@ -209,6 +232,10 @@ const AdminOrders = () => {
 
                     <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       DATE
+                    </th>
+
+                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                      PAYMENT
                     </th>
 
                     <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
@@ -270,6 +297,18 @@ const AdminOrders = () => {
                         </div>
                       </td>
 
+                      {/* PAYMENT STATUS */}
+                      <td className="px-6 py-5">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getPaymentStatusStyle(
+                            order.paymentStatus
+                          )}`}
+                        >
+                          {formatStatus(order.paymentStatus)}
+                        </span>
+                      </td>
+
+                      {/* ORDER STATUS */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
 

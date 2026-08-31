@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { api } from "../api/api";
+import Toast from "../components/Toast";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const Register = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const [toast, setToast] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,24 +37,35 @@ const Register = () => {
         password: formData.password,
       });
 
-      alert(
+      const successMessage =
         response.data.message ||
-          "Registration successful. Please verify your email with the OTP."
-      );
+        "Account created successfully! Please verify your email.";
 
-      navigate("/verify-otp", {
-        state: {
-          email: formData.email,
-        },
+      setToast({
+        type: "success",
+        message: successMessage,
       });
+
+      setTimeout(() => {
+        navigate("/verify-otp", {
+          state: {
+            email: formData.email,
+          },
+        });
+      }, 3400);
+
     } catch (error) {
       console.error("Registration error:", error);
 
       const message =
         error.response?.data?.message ||
-        "Something went wrong while creating your account.";
+        "We couldn't create your account. Please try again.";
 
-      alert(message);
+      setToast({
+        type: "error",
+        message,
+      });
+
     } finally {
       setLoading(false);
     }
@@ -60,11 +74,19 @@ const Register = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10">
 
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          duration={3000}
+          onClose={() => setToast(null)}
+        />
+      )}
+
       <div className="w-full max-w-md">
 
-        {/* Logo / Heading */}
-
         <div className="mb-8 text-center">
+
           <h1 className="text-4xl font-bold text-white">
             Go<span className="text-orange-500">Flex</span>
           </h1>
@@ -72,10 +94,8 @@ const Register = () => {
           <p className="mt-3 text-zinc-400">
             Create your GoFlex account.
           </p>
+
         </div>
-
-
-        {/* Register Card */}
 
         <form
           onSubmit={handleSubmit}
@@ -87,9 +107,8 @@ const Register = () => {
           </h2>
 
 
-          {/* Name */}
-
           <div className="mb-5">
+
             <label
               htmlFor="name"
               className="mb-2 block text-sm font-medium text-zinc-300"
@@ -108,12 +127,11 @@ const Register = () => {
               autoComplete="name"
               className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
+
           </div>
 
-
-          {/* Email */}
-
           <div className="mb-5">
+
             <label
               htmlFor="email"
               className="mb-2 block text-sm font-medium text-zinc-300"
@@ -132,12 +150,11 @@ const Register = () => {
               autoComplete="email"
               className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
+
           </div>
 
-
-          {/* Password */}
-
           <div className="mb-6">
+
             <label
               htmlFor="password"
               className="mb-2 block text-sm font-medium text-zinc-300"
@@ -157,10 +174,8 @@ const Register = () => {
               autoComplete="new-password"
               className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-white outline-none placeholder:text-zinc-500 focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
+
           </div>
-
-
-          {/* Register Button */}
 
           <button
             type="submit"
@@ -170,10 +185,8 @@ const Register = () => {
             {loading ? "Creating Account..." : "Register"}
           </button>
 
-
-          {/* Login */}
-
           <p className="mt-6 text-center text-sm text-zinc-400">
+
             Already have an account?{" "}
 
             <Link
@@ -182,12 +195,12 @@ const Register = () => {
             >
               Login
             </Link>
+
           </p>
 
         </form>
 
       </div>
-
     </div>
   );
 };

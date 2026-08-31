@@ -1,22 +1,34 @@
+// frontend/src/App.jsx
+
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
   RouterProvider,
-} from "react-router-dom";
+} from "react-router";
 
 import Home from "./pages/Home.jsx";
 import Layout from "./Layout.jsx";
 import Cart from "./pages/Cart.jsx";
 import Shop from "./pages/Shop.jsx";
-// import ProductDetail from "./pages/ProductDetail.jsx";
-import ProductDetail from "./pages/ProductDetails.jsx"
+
+import ProductDetail from "./pages/ProductDetails.jsx";
+
 import Profile from "./pages/Profile.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import VerifyOTP from "./pages/VerifyOTP.jsx";
+
 import Checkout from "./pages/Checkout.jsx";
+
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import PaymentFail from "./pages/PaymentFail.jsx";
+import PaymentCancel from "./pages/PaymentCancel.jsx";
+
+import About from "./pages/About.jsx";
+import ReturnPolicy from "./pages/ReturnPolicy.jsx";
+import RequestReturn from "./pages/RequestReturn.jsx";
+import Disclaimer from "./pages/Disclaimer.jsx";
 
 import AdminDashboard from "./admin/AdminDashboard.jsx";
 import AddProduct from "./admin/AddProduct.jsx";
@@ -24,6 +36,7 @@ import AdminProducts from "./admin/AdminProducts.jsx";
 import AdminOrders from "./admin/AdminOrders.jsx";
 import AdminUsers from "./admin/AdminUsers.jsx";
 import EditProduct from "./admin/EditProduct.jsx";
+import AdminReturnRequests from "./admin/AdminReturnRequests.jsx";
 
 import "./App.css";
 
@@ -32,33 +45,100 @@ function App() {
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
 
+        {/* Home */}
         <Route index element={<Home />} />
 
-        <Route path="shop" element={<Shop />} />
+        {/* Shop */}
+        <Route
+          path="shop"
+          element={<Shop />}
+        />
 
+        {/* Product Details */}
         <Route
           path="product/:id"
           element={<ProductDetail />}
         />
 
-        <Route path="cart" element={<Cart />} />
+        {/* Cart */}
+        <Route
+          path="cart"
+          element={<Cart />}
+        />
 
-        <Route path="checkout" element={<Checkout />} />
+        {/* Checkout */}
+        <Route
+          path="checkout"
+          element={<Checkout />}
+        />
 
-        <Route path="profile" element={<Profile />} />
+        {/* User */}
+        <Route
+          path="profile"
+          element={<Profile />}
+        />
 
-        <Route path="login" element={<Login />} />
+        {/* Authentication */}
+        <Route
+          path="login"
+          element={<Login />}
+        />
 
-        <Route path="register" element={<Register />} />
+        <Route
+          path="register"
+          element={<Register />}
+        />
 
-        <Route path="verify-otp" element={<VerifyOTP />} />
+        <Route
+          path="verify-otp"
+          element={<VerifyOTP />}
+        />
 
+        {/* Payment */}
         <Route
           path="payment-success"
           element={<PaymentSuccess />}
         />
 
-        <Route path="admin" element={<AdminDashboard />} />
+        <Route
+          path="payment-fail"
+          element={<PaymentFail />}
+        />
+
+        <Route
+          path="payment-cancel"
+          element={<PaymentCancel />}
+        />
+
+        {/* Static Pages */}
+        <Route
+          path="about"
+          element={<About />}
+        />
+
+        <Route
+          path="return-policy"
+          element={<ReturnPolicy />}
+        />
+
+        <Route
+          path="request-return"
+          element={<RequestReturn />}
+        />
+
+        <Route
+          path="disclaimer"
+          element={<Disclaimer />}
+        />
+
+        {/* ========================================
+            ADMIN
+        ======================================== */}
+
+        <Route
+          path="admin"
+          element={<AdminDashboard />}
+        />
 
         <Route
           path="admin/add-product"
@@ -85,11 +165,18 @@ function App() {
           element={<EditProduct />}
         />
 
+        <Route
+          path="admin/returns"
+          element={<AdminReturnRequests />}
+        />
+
       </Route>
     )
   );
 
-  return <RouterProvider router={router} />;
+  return (
+    <RouterProvider router={router} />
+  );
 }
 
 export default App;

@@ -1,14 +1,19 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link } from "react-router";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 
 const About = () => {
+
+  useEffect(() => {
+    AOS.init();
+  }, [])
+  
+
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-12 text-white">
       <div className="mx-auto max-w-6xl">
-
-        {/* =========================
-            HERO SECTION
-        ========================== */}
 
         <section className="mb-16 text-center">
 
@@ -31,11 +36,6 @@ const About = () => {
           </p>
 
         </section>
-
-
-        {/* =========================
-            ABOUT GOFLEX
-        ========================== */}
 
         <section className="mb-16 grid items-center gap-10 lg:grid-cols-2">
 
@@ -94,12 +94,7 @@ const About = () => {
 
         </section>
 
-
-        {/* =========================
-            FEATURES
-        ========================== */}
-
-        <section className="mb-16">
+        <section data-aos="fade-up" className="mb-16">
 
           <div className="mb-10 text-center">
 
@@ -120,8 +115,6 @@ const About = () => {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 
-            {/* Feature 1 */}
-
             <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:-translate-y-1 hover:border-orange-500/40">
 
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500/10 text-2xl">
@@ -139,8 +132,6 @@ const About = () => {
 
             </div>
 
-
-            {/* Feature 2 */}
 
             <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:-translate-y-1 hover:border-orange-500/40">
 
@@ -160,8 +151,6 @@ const About = () => {
             </div>
 
 
-            {/* Feature 3 */}
-
             <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:-translate-y-1 hover:border-orange-500/40">
 
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500/10 text-2xl">
@@ -179,8 +168,6 @@ const About = () => {
 
             </div>
 
-
-            {/* Feature 4 */}
 
             <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 transition hover:-translate-y-1 hover:border-orange-500/40">
 
@@ -203,12 +190,7 @@ const About = () => {
 
         </section>
 
-
-        {/* =========================
-            TECHNOLOGY SECTION
-        ========================== */}
-
-        <section className="mb-16 rounded-2xl border border-zinc-800 bg-zinc-900 p-8 sm:p-10">
+        <section data-aos="fade-up" className="mb-16 rounded-2xl border border-zinc-800 bg-zinc-900 p-8 sm:p-10">
 
           <div className="text-center">
 
@@ -255,11 +237,7 @@ const About = () => {
         </section>
 
 
-        {/* =========================
-            CTA
-        ========================== */}
-
-        <section className="rounded-2xl border border-orange-500/20 bg-orange-500/10 px-6 py-12 text-center sm:px-10">
+        <section data-aos="fade-up" className="rounded-2xl border border-orange-500/20 bg-orange-500/10 px-6 py-12 text-center sm:px-10">
 
           <h2 className="text-3xl font-bold sm:text-4xl">
             Ready to Start Shopping?

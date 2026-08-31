@@ -1,11 +1,13 @@
 import React, { useContext, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../api/api";
+import Toast from "../components/Toast";
 
 const VerifyOTP = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
   const { login } = useContext(AuthContext);
 
   const email = location.state?.email;
@@ -13,12 +15,21 @@ const VerifyOTP = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [toast, setToast] = useState(null);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
-      alert("Email information is missing. Please register again.");
-      navigate("/register");
+      setToast({
+        type: "warning",
+        message: "Email information is missing. Please register again.",
+      });
+
+      setTimeout(() => {
+        navigate("/register");
+      }, 3400);
+
       return;
     }
 
@@ -36,20 +47,28 @@ const VerifyOTP = () => {
         login(userData.user);
       }
 
-      alert(
-        response.data.message ||
-          "Email verified successfully."
-      );
+      setToast({
+        type: "success",
+        message: "Email verified successfully! Welcome to GoFlex.",
+      });
 
-      navigate("/");
+      // Wait for toast to finish
+      setTimeout(() => {
+        navigate("/");
+      }, 3400);
+
     } catch (error) {
       console.error("OTP verification error:", error);
 
       const message =
         error.response?.data?.message ||
-        "Invalid or expired OTP.";
+        "That verification code is invalid or expired. Please try again.";
 
-      alert(message);
+      setToast({
+        type: "error",
+        message,
+      });
+
     } finally {
       setLoading(false);
     }
@@ -58,9 +77,16 @@ const VerifyOTP = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10">
 
-      <div className="w-full max-w-md">
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          duration={3000}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-        {/* Logo / Heading */}
+      <div className="w-full max-w-md">
 
         <div className="mb-8 text-center">
 
@@ -73,9 +99,6 @@ const VerifyOTP = () => {
           </p>
 
         </div>
-
-
-        {/* OTP Card */}
 
         <form
           onSubmit={handleSubmit}
@@ -93,7 +116,6 @@ const VerifyOTP = () => {
           <p className="mb-6 break-all font-medium text-orange-500">
             {email || "No email provided"}
           </p>
-
 
           {/* OTP */}
 
@@ -123,9 +145,6 @@ const VerifyOTP = () => {
 
           </div>
 
-
-          {/* Verify Button */}
-
           <button
             type="submit"
             disabled={loading || otp.length !== 6 || !email}
@@ -133,9 +152,6 @@ const VerifyOTP = () => {
           >
             {loading ? "Verifying..." : "Verify Email"}
           </button>
-
-
-          {/* Back to Register */}
 
           <p className="mt-6 text-center text-sm text-zinc-400">
 
@@ -153,7 +169,6 @@ const VerifyOTP = () => {
         </form>
 
       </div>
-
     </div>
   );
 };

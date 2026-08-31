@@ -5,10 +5,6 @@ const Disclaimer = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-12 text-zinc-300">
       <div className="mx-auto max-w-4xl">
 
-        {/* =========================
-            HEADER
-        ========================== */}
-
         <div className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900 p-8 shadow-2xl">
 
           <div className="mb-4 inline-flex items-center rounded-full border border-orange-500/20 bg-orange-500/10 px-4 py-2 text-sm font-medium text-orange-400">
@@ -26,14 +22,7 @@ const Disclaimer = () => {
 
         </div>
 
-
-        {/* =========================
-            CONTENT
-        ========================== */}
-
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl sm:p-8">
-
-          {/* Introduction */}
 
           <p className="leading-7 text-zinc-400">
             GoFlex is a full-stack e-commerce project created for
@@ -43,9 +32,6 @@ const Disclaimer = () => {
             authentication, order management, and online payment
             integration.
           </p>
-
-
-          {/* 1. Educational Project */}
 
           <section className="mt-8">
 
@@ -63,9 +49,6 @@ const Disclaimer = () => {
 
           </section>
 
-
-          {/* 2. Product Information */}
-
           <section className="mt-8">
 
             <h2 className="mb-3 text-xl font-semibold text-orange-500">
@@ -81,9 +64,6 @@ const Disclaimer = () => {
             </p>
 
           </section>
-
-
-          {/* 3. Payment */}
 
           <section className="mt-8">
 
@@ -102,9 +82,6 @@ const Disclaimer = () => {
 
           </section>
 
-
-          {/* 4. Personal Information */}
-
           <section className="mt-8">
 
             <h2 className="mb-3 text-xl font-semibold text-orange-500">
@@ -121,9 +98,6 @@ const Disclaimer = () => {
 
           </section>
 
-
-          {/* 5. External Services */}
-
           <section className="mt-8">
 
             <h2 className="mb-3 text-xl font-semibold text-orange-500">
@@ -139,9 +113,6 @@ const Disclaimer = () => {
 
           </section>
 
-
-          {/* 6. Availability */}
-
           <section className="mt-8">
 
             <h2 className="mb-3 text-xl font-semibold text-orange-500">
@@ -156,9 +127,6 @@ const Disclaimer = () => {
             </p>
 
           </section>
-
-
-          {/* 7. External Links */}
 
           <section className="mt-8">
 
@@ -176,8 +144,6 @@ const Disclaimer = () => {
           </section>
 
 
-          {/* 8. No Warranty */}
-
           <section className="mt-8">
 
             <h2 className="mb-3 text-xl font-semibold text-orange-500">
@@ -193,8 +159,6 @@ const Disclaimer = () => {
 
           </section>
 
-
-          {/* Final Notice */}
 
           <div className="mt-10 rounded-xl border border-orange-500/20 bg-orange-500/5 p-5">
 
