@@ -370,7 +370,7 @@ const RequestReturn = () => {
                   type="button"
                   onClick={handleFindOrder}
                   disabled={loadingOrder}
-                  className="shrink-0 rounded-lg bg-zinc-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="cursor-pointer shrink-0 rounded-lg bg-zinc-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
                 >
 
                   {loadingOrder
@@ -656,7 +656,6 @@ const RequestReturn = () => {
 
             </div>
 
-
             <button
               type="submit"
               disabled={
@@ -664,7 +663,7 @@ const RequestReturn = () => {
                 !order ||
                 !selectedProductId
               }
-              className="w-full rounded-lg bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="cursor-pointer w-full rounded-lg bg-orange-500 px-5 py-3 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
 
               {loading

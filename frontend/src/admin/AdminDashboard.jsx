@@ -10,10 +10,6 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ========================================
-  // FETCH DASHBOARD STATS
-  // ========================================
-
   useEffect(() => {
     if (authLoading) return;
 
@@ -59,10 +55,6 @@ const AdminDashboard = () => {
     fetchStats();
   }, [user, authLoading, navigate]);
 
-  // ========================================
-  // AUTH LOADING
-  // ========================================
-
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950">
@@ -73,25 +65,15 @@ const AdminDashboard = () => {
     );
   }
 
-  // ========================================
-  // NOT LOGGED IN
-  // ========================================
-
   if (!user) {
     return null;
   }
 
-  // ========================================
-  // NOT ADMIN
-  // ========================================
 
   if (user.role !== "admin") {
     return null;
   }
 
-  // ========================================
-  // DASHBOARD CARDS
-  // ========================================
 
   const dashboardCards = [
     {
@@ -121,10 +103,6 @@ const AdminDashboard = () => {
       description: "Total earnings",
     },
   ];
-
-  // ========================================
-  // ADMIN CONTROLS
-  // ========================================
 
   const adminControls = [
     {
@@ -166,10 +144,6 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
 
-        {/* ========================================
-            HEADER
-        ======================================== */}
-
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
           <div>
@@ -205,16 +179,12 @@ const AdminDashboard = () => {
           <button
             type="button"
             onClick={() => navigate("/shop")}
-            className="rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-orange-500 hover:text-orange-500"
+            className="cursor-pointer rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-orange-500 hover:text-orange-500"
           >
             View Store
           </button>
 
         </div>
-
-        {/* ========================================
-            STORE OVERVIEW
-        ======================================== */}
 
         <section>
 
@@ -305,7 +275,7 @@ const AdminDashboard = () => {
                 key={control.title}
                 type="button"
                 onClick={() => navigate(control.path)}
-                className={`group rounded-2xl border p-6 text-left transition duration-300 hover:-translate-y-1 ${
+                className={`group rounded-2xl border p-6 text-left transition duration-300 cursor-pointer hover:-translate-y-1 ${
                   control.primary
                     ? "border-orange-500/30 bg-orange-500/10 hover:border-orange-500 hover:bg-orange-500/15"
                     : "border-zinc-800 bg-zinc-900 hover:border-zinc-600"
@@ -342,10 +312,6 @@ const AdminDashboard = () => {
 
         </section>
 
-        {/* ========================================
-            QUICK INFO
-        ======================================== */}
-
         <section className="mt-12 rounded-2xl border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -364,7 +330,7 @@ const AdminDashboard = () => {
             <button
               type="button"
               onClick={() => navigate("/shop")}
-              className="rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
+              className="cursor-pointer rounded-lg bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
             >
               Visit GoFlex
             </button>

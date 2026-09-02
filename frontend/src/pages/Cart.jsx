@@ -140,7 +140,7 @@ const Cart = () => {
                             )
                           }
                           disabled={item.quantity === 1}
-                          className="px-4 py-2 text-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300"
+                          className="cursor-pointer px-4 py-2 text-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300"
                         >
                           −
                         </button>
@@ -157,7 +157,7 @@ const Cart = () => {
                               item.quantity + 1
                             )
                           }
-                          className="px-4 py-2 text-lg text-gray-700 transition hover:bg-gray-100"
+                          className="cursor-pointer px-4 py-2 text-lg text-gray-700 transition hover:bg-gray-100"
                         >
                           +
                         </button>
@@ -207,7 +207,7 @@ const Cart = () => {
               <button
                 type="button"
                 onClick={handleCheckout}
-                className="mt-6 w-full rounded-lg bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600"
+                className="cursor-pointer mt-6 w-full rounded-lg bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600"
               >
                 Proceed to Checkout
               </button>

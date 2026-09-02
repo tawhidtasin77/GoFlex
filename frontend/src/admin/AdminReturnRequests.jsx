@@ -1,5 +1,3 @@
-// frontend/src/admin/AdminReturnRequests.jsx
-
 import React, {
   useContext,
   useEffect,
@@ -30,10 +28,6 @@ const AdminReturnRequests = () => {
 
   const [toast, setToast] =
     useState(null);
-
-  // ========================================
-  // FETCH RETURN REQUESTS
-  // ========================================
 
   const fetchReturnRequests = async () => {
     try {
@@ -77,10 +71,6 @@ const AdminReturnRequests = () => {
     }
   };
 
-  // ========================================
-  // CHECK ADMIN
-  // ========================================
-
   useEffect(() => {
     if (authLoading) return;
 
@@ -99,10 +89,6 @@ const AdminReturnRequests = () => {
     user,
     authLoading,
   ]);
-
-  // ========================================
-  // UPDATE STATUS
-  // ========================================
 
   const updateStatus = async (
     id,
@@ -125,9 +111,9 @@ const AdminReturnRequests = () => {
         prev.map((item) =>
           item._id === id
             ? {
-                ...item,
-                ...updatedReturn,
-              }
+              ...item,
+              ...updatedReturn,
+            }
             : item
         )
       );
@@ -155,9 +141,6 @@ const AdminReturnRequests = () => {
     }
   };
 
-  // ========================================
-  // FORMAT DATE
-  // ========================================
 
   const formatDate = (date) => {
     if (!date) return "N/A";
@@ -174,10 +157,6 @@ const AdminReturnRequests = () => {
     );
   };
 
-  // ========================================
-  // STATUS STYLE
-  // ========================================
-
   const getStatusClass = (status) => {
     switch (status) {
       case "approved":
@@ -191,10 +170,6 @@ const AdminReturnRequests = () => {
     }
   };
 
-  // ========================================
-  // AUTH LOADING
-  // ========================================
-
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950">
@@ -205,9 +180,6 @@ const AdminReturnRequests = () => {
     );
   }
 
-  // ========================================
-  // NOT ADMIN
-  // ========================================
 
   if (
     !user ||
@@ -216,9 +188,6 @@ const AdminReturnRequests = () => {
     return null;
   }
 
-  // ========================================
-  // PAGE
-  // ========================================
 
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
@@ -273,7 +242,7 @@ const AdminReturnRequests = () => {
             onClick={() =>
               navigate("/admin")
             }
-            className="rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-orange-500 hover:text-orange-500"
+            className="cursor-pointer rounded-lg border border-zinc-700 bg-zinc-900 px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:border-orange-500 hover:text-orange-500"
           >
             ← Dashboard
           </button>
@@ -467,19 +436,19 @@ const AdminReturnRequests = () => {
 
                           {request.product
                             ?.image && (
-                            <img
-                              src={
-                                request.product
-                                  .image
-                              }
-                              alt={
-                                request.product
-                                  .name ||
-                                "Product"
-                              }
-                              className="h-14 w-14 rounded-lg object-cover"
-                            />
-                          )}
+                              <img
+                                src={
+                                  request.product
+                                    .image
+                                }
+                                alt={
+                                  request.product
+                                    .name ||
+                                  "Product"
+                                }
+                                className="h-14 w-14 rounded-lg object-cover"
+                              />
+                            )}
 
                           <div>
 
@@ -492,15 +461,15 @@ const AdminReturnRequests = () => {
                             {request.product
                               ?.price !==
                               undefined && (
-                              <p className="mt-1 text-sm text-zinc-500">
-                                ৳
-                                {
-                                  request
-                                    .product
-                                    .price
-                                }
-                              </p>
-                            )}
+                                <p className="mt-1 text-sm text-zinc-500">
+                                  ৳
+                                  {
+                                    request
+                                      .product
+                                      .price
+                                  }
+                                </p>
+                              )}
 
                           </div>
 
@@ -566,51 +535,51 @@ const AdminReturnRequests = () => {
                   {request.status ===
                     "pending" && (
 
-                    <div className="flex flex-col gap-3 border-t border-zinc-800 bg-zinc-950/50 p-5 sm:flex-row sm:justify-end">
+                      <div className="flex flex-col gap-3 border-t border-zinc-800 bg-zinc-950/50 p-5 sm:flex-row sm:justify-end">
 
-                      <button
-                        type="button"
-                        disabled={
-                          updatingId ===
-                          request._id
-                        }
-                        onClick={() =>
-                          updateStatus(
-                            request._id,
-                            "rejected"
-                          )
-                        }
-                        className="rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-400 transition hover:border-red-500 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {updatingId ===
-                        request._id
-                          ? "Updating..."
-                          : "Reject Return"}
-                      </button>
+                        <button
+                          type="button"
+                          disabled={
+                            updatingId ===
+                            request._id
+                          }
+                          onClick={() =>
+                            updateStatus(
+                              request._id,
+                              "rejected"
+                            )
+                          }
+                          className="rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-400 transition hover:border-red-500 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {updatingId ===
+                            request._id
+                            ? "Updating..."
+                            : "Reject Return"}
+                        </button>
 
-                      <button
-                        type="button"
-                        disabled={
-                          updatingId ===
-                          request._id
-                        }
-                        onClick={() =>
-                          updateStatus(
-                            request._id,
-                            "approved"
-                          )
-                        }
-                        className="rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {updatingId ===
-                        request._id
-                          ? "Updating..."
-                          : "Approve Return"}
-                      </button>
+                        <button
+                          type="button"
+                          disabled={
+                            updatingId ===
+                            request._id
+                          }
+                          onClick={() =>
+                            updateStatus(
+                              request._id,
+                              "approved"
+                            )
+                          }
+                          className="rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {updatingId ===
+                            request._id
+                            ? "Updating..."
+                            : "Approve Return"}
+                        </button>
 
-                    </div>
+                      </div>
 
-                  )}
+                    )}
 
                 </div>
 

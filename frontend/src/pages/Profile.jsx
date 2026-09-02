@@ -1,70 +1,125 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  Link,
+  useNavigate,
+} from "react-router";
+
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../api/api";
 
 const Profile = () => {
-  const { user, logout } = useContext(AuthContext);
+  const {
+    user,
+    logout,
+    loading: authLoading,
+  } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] =
+    useState(true);
 
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] =
+    useState(false);
+
+  const [logoutLoading, setLogoutLoading] =
+    useState(false);
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
-      navigate("/login");
+      navigate("/login", {
+        replace: true,
+      });
+
       return;
     }
 
     const fetchMyOrders = async () => {
       try {
-        const response = await api.get("/orders/my-orders");
+        setOrdersLoading(true);
 
-        setOrders(response.data.data || []);
+        const response = await api.get(
+          "/orders/my-orders"
+        );
+
+        setOrders(
+          response.data.data || []
+        );
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
-
-        if (error.response?.status === 401) {
-          logout();
-          navigate("/login");
-        }
+        console.error(
+          "Failed to fetch orders:",
+          error
+        );
 
         setOrders([]);
       } finally {
-        setLoading(false);
+        setOrdersLoading(false);
       }
     };
 
     fetchMyOrders();
-  }, [user, navigate, logout]);
+  }, [
+    user,
+    authLoading,
+    navigate,
+  ]);
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
 
-  // Cancel logout
   const handleCancelLogout = () => {
-    if (logoutLoading) return;
+    if (logoutLoading) {
+      return;
+    }
 
     setShowLogoutModal(false);
   };
 
-  // Confirm logout
   const handleConfirmLogout = async () => {
     try {
       setLogoutLoading(true);
 
-      await api.post("/users/logout");
+      await logout();
+
+      setShowLogoutModal(false);
+
+      navigate("/login", {
+        replace: true,
+      });
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error(
+        "Logout error:",
+        error
+      );
     } finally {
-      logout();
-      navigate("/login");
+      setLogoutLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-700 border-t-orange-500" />
+
+          <p className="text-zinc-400">
+            Loading profile...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;
@@ -135,14 +190,13 @@ const Profile = () => {
 
           </div>
 
-
           <div className="mt-8">
 
             <h2 className="mb-5 text-2xl font-semibold text-orange-500">
               Order History
             </h2>
 
-            {loading ? (
+            {ordersLoading ? (
 
               <div className="flex min-h-32 items-center justify-center">
                 <p className="text-zinc-400">
@@ -188,7 +242,6 @@ const Profile = () => {
                         </span>
                       </p>
 
-
                       <p className="text-sm text-zinc-500">
                         Placed On:
 
@@ -199,15 +252,16 @@ const Profile = () => {
                         </span>
                       </p>
 
-
                       <p className="text-sm text-zinc-500">
                         Total:
 
                         <span className="ml-2 font-semibold text-green-500">
-                          ৳{Number(order.totalAmount).toFixed(2)}
+                          ৳
+                          {Number(
+                            order.totalAmount
+                          ).toFixed(2)}
                         </span>
                       </p>
-
 
                       <p className="text-sm text-zinc-500">
                         Payment:
@@ -218,7 +272,6 @@ const Profile = () => {
                       </p>
 
                     </div>
-
 
                     <div>
 
@@ -246,7 +299,6 @@ const Profile = () => {
 
       </div>
 
-
       {showLogoutModal && (
 
         <div
@@ -256,10 +308,10 @@ const Profile = () => {
 
           <div
             className="w-full max-w-md animate-in fade-in zoom-in-95 rounded-2xl border border-zinc-700 bg-zinc-900 p-6 shadow-2xl duration-200"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) =>
+              e.stopPropagation()
+            }
           >
-
-            {/* Icon */}
 
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10">
 
@@ -287,12 +339,13 @@ const Profile = () => {
               </h3>
 
               <p className="mt-2 text-sm leading-6 text-zinc-400">
-                Are you sure you want to logout from your account?
-                You will need to login again to access your profile.
+                Are you sure you want to logout
+                from your account? You will need
+                to login again to access your
+                profile.
               </p>
 
             </div>
-
 
             <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">
 
@@ -305,7 +358,6 @@ const Profile = () => {
                 Cancel
               </button>
 
-
               <button
                 type="button"
                 onClick={handleConfirmLogout}
@@ -314,9 +366,7 @@ const Profile = () => {
               >
 
                 {logoutLoading && (
-
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-
                 )}
 
                 {logoutLoading

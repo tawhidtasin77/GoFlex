@@ -54,7 +54,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 }
 
 userSchema.pre("save", async function(){
-    if(!this.isModified("otp")) return;
+    if(!this.isModified("otp") || !this.otp) return;
     this.otp = await bcrypt.hash(this.otp, 10);
 })
 

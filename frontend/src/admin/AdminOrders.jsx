@@ -150,7 +150,7 @@ const AdminOrders = () => {
           <button
             type="button"
             onClick={() => navigate("/admin")}
-            className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+            className="cursor-pointer mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
           >
             ← Back to Dashboard
           </button>

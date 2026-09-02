@@ -12,10 +12,8 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [deletingProduct, setDeletingProduct] = useState(null);
 
-  // Toast state
   const [toast, setToast] = useState(null);
 
-  // Product selected for deletion
   const [productToDelete, setProductToDelete] = useState(null);
 
   useEffect(() => {
@@ -56,12 +54,10 @@ const AdminProducts = () => {
     fetchProducts();
   }, [user, authLoading, navigate]);
 
-  // Open delete confirmation modal
   const handleDelete = (product) => {
     setProductToDelete(product);
   };
 
-  // Confirm and delete product
   const confirmDelete = async () => {
     if (!productToDelete) return;
 
@@ -120,7 +116,6 @@ const AdminProducts = () => {
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
 
-      {/* Toast */}
       {toast && (
         <Toast
           type={toast.type}
@@ -132,12 +127,11 @@ const AdminProducts = () => {
 
       <div className="mx-auto max-w-7xl">
 
-        {/* Header */}
         <div className="mb-8">
           <button
             type="button"
             onClick={() => navigate("/admin")}
-            className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+            className="cursor-pointer mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
           >
             ← Back to Dashboard
           </button>
@@ -419,7 +413,6 @@ const AdminProducts = () => {
 
       </div>
 
-      {/* Delete Confirmation Modal */}
       {productToDelete && (
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">

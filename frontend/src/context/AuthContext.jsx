@@ -25,7 +25,8 @@ export const AuthProvider = ({ children }) => {
           "/users/current-user"
         );
 
-        const currentUser = response.data.data;
+        const currentUser =
+          response.data.data;
 
         setUser(currentUser);
 
@@ -35,7 +36,9 @@ export const AuthProvider = ({ children }) => {
           })
         );
       } catch (error) {
-        console.log("User is not authenticated.");
+        console.log(
+          "User is not authenticated."
+        );
 
         setUser(null);
 
@@ -66,7 +69,10 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post("/users/logout");
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error(
+        "Logout failed:",
+        error
+      );
     } finally {
       setUser(null);
 
