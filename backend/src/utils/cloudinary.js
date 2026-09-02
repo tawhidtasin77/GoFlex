@@ -15,8 +15,8 @@ const uploadOnCloudinary = async(localFilePath) => {
             resource_type: "auto"
         });
 
-        console.log("file uploaded on cloudinary successfully. url: ", response.url);
-        fs.unlinkSync(localFilePath);
+        // console.log("file uploaded on cloudinary successfully. url: ", response.url);
+        // fs.unlinkSync(localFilePath);
 
         return {
             url: response.secure_url,
@@ -24,10 +24,10 @@ const uploadOnCloudinary = async(localFilePath) => {
         }
         
     } catch (error) {
-        console.log("========== CLOUDINARY ERROR ==========");
-        console.log(error);
-        console.log("Error message:", error.message);
-        console.log("======================================");
+        // console.log("========== CLOUDINARY ERROR ==========");
+        // console.log(error);
+        // console.log("Error message:", error.message);
+        // console.log("======================================");
 
         if(localFilePath && fs.existsSync(localFilePath)){
             fs.unlinkSync(localFilePath);

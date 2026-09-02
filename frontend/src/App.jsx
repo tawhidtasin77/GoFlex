@@ -1,5 +1,3 @@
-// frontend/src/App.jsx
-
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -40,8 +38,7 @@ import AdminReturnRequests from "./admin/AdminReturnRequests.jsx";
 
 import "./App.css";
 
-function App() {
-  const router = createBrowserRouter(
+const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
 
@@ -131,10 +128,6 @@ function App() {
           element={<Disclaimer />}
         />
 
-        {/* ========================================
-            ADMIN
-        ======================================== */}
-
         <Route
           path="admin"
           element={<AdminDashboard />}
@@ -174,9 +167,8 @@ function App() {
     )
   );
 
-  return (
-    <RouterProvider router={router} />
-  );
+function App() {
+  return <RouterProvider router={router} />;
 }
 
 export default App;

@@ -15,14 +15,16 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    const url = originalRequest.url || "";
+
     const isRefreshRequest =
-      originalRequest.url === "/users/refresh-token";
+      url.includes("/users/refresh-token");
 
     const isAuthRoute =
-      originalRequest.url === "/users/login" ||
-      originalRequest.url === "/users/register" ||
-      originalRequest.url === "/users/verify-otp" ||
-      originalRequest.url === "/users/resend-otp";
+      url.includes("/users/login") ||
+      url.includes("/users/register") ||
+      url.includes("/users/verify-otp") ||
+      url.includes("/users/resend-otp");
 
     if (
       error.response?.status === 401 &&
@@ -33,17 +35,11 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await api.post(
-          "/users/refresh-token"
-        );
+        await api.post("/users/refresh-token");
 
         return api(originalRequest);
       } catch (refreshError) {
-        window.location.href = "/login";
-
-        return Promise.reject(
-          refreshError
-        );
+        return Promise.reject(refreshError);
       }
     }
 

@@ -6,6 +6,17 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { sendEmail } from "../utils/sendEmail.js";
 
+const isProduction =
+    process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction
+        ? "none"
+        : "lax",
+};
+
 const generateOTP = () => {
     return Math.floor(
         100000 + Math.random() * 900000
@@ -16,6 +27,7 @@ const sendOTP = async (user) => {
     const otp = generateOTP();
 
     user.otp = otp;
+
     user.otpExpires =
         new Date(Date.now() + 10 * 60 * 1000);
 
@@ -197,23 +209,17 @@ const verifyOTP = asyncHandler(async (req, res) => {
             "-password -refreshToken -otp -otpExpires"
         );
 
-    const options = {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-    };
-
     return res
         .status(200)
         .cookie(
             "accessToken",
             accessToken,
-            options
+            cookieOptions
         )
         .cookie(
             "refreshToken",
             refreshToken,
-            options
+            cookieOptions
         )
         .json(
             new ApiResponse(
@@ -326,23 +332,17 @@ const loginUser = asyncHandler(async (req, res) => {
             "-password -refreshToken -otp -otpExpires"
         );
 
-    const options = {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-    };
-
     return res
         .status(200)
         .cookie(
             "accessToken",
             accessToken,
-            options
+            cookieOptions
         )
         .cookie(
             "refreshToken",
             refreshToken,
-            options
+            cookieOptions
         )
         .json(
             new ApiResponse(
@@ -402,18 +402,12 @@ const refreshAccessToken = asyncHandler(
             const accessToken =
                 user.generateAccessToken();
 
-            const options = {
-                httpOnly: true,
-                secure: false,
-                sameSite: "lax",
-            };
-
             return res
                 .status(200)
                 .cookie(
                     "accessToken",
                     accessToken,
-                    options
+                    cookieOptions
                 )
                 .json(
                     new ApiResponse(
@@ -448,21 +442,15 @@ const logoutUser = asyncHandler(
             }
         );
 
-        const options = {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-        };
-
         return res
             .status(200)
             .clearCookie(
                 "accessToken",
-                options
+                cookieOptions
             )
             .clearCookie(
                 "refreshToken",
-                options
+                cookieOptions
             )
             .json(
                 new ApiResponse(
