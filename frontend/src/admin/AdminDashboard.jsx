@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router";
 import { api } from "../api/api";
+import logo from "../assets/logo.png"
 
 const AdminDashboard = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -149,11 +150,11 @@ const AdminDashboard = () => {
           <div>
             <div className="mb-2 flex items-center gap-3">
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 ring-1 ring-orange-500/20">
-                <span className="text-xl font-black text-orange-500">
-                  G
-                </span>
-              </div>
+              <img
+              src={logo}
+              alt="GoFlex Logo"
+              className="h-10 w-10 rounded-xl object-contain"
+            />
 
               <div>
                 <p className="text-sm font-medium text-orange-500">

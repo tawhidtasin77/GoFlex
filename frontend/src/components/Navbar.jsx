@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router";
 import { AuthContext } from "../context/AuthContext";
 import { useSelector } from "react-redux";
+import logo from "../assets/logo.png"
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -12,12 +13,10 @@ const Navbar = () => {
 
   const navigate = useNavigate();
 
-  // Open logout confirmation modal
   const handleLogoutClick = () => {
     setShowLogoutConfirm(true);
   };
 
-  // Confirm logout
   const confirmLogout = () => {
     logout();
     setMenuOpen(false);
@@ -25,7 +24,6 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  // Cancel logout
   const cancelLogout = () => {
     setShowLogoutConfirm(false);
   };
@@ -51,11 +49,11 @@ const Navbar = () => {
             onClick={closeMenu}
             className="flex shrink-0 items-center gap-2"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 ring-1 ring-orange-500/20">
-              <span className="text-xl font-black text-orange-500">
-                G
-              </span>
-            </div>
+            <img
+              src={logo}
+              alt="GoFlex Logo"
+              className="h-10 w-10 rounded-xl object-contain"
+            />
 
             <span className="text-2xl font-bold tracking-tight text-white">
               Go<span className="text-orange-500">Flex</span>
@@ -86,8 +84,8 @@ const Navbar = () => {
                 }`
               }
             >
-              <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312" />
+              <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312" />
               </svg>
 
 
