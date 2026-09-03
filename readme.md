@@ -263,11 +263,9 @@ GoFlex/
 │
 ├── .gitignore
 ├── package-lock.json
-├── .gitignorepackage.json
+├── package.json
 └── README.md
 ```
-
-> `node_modules` directories are intentionally omitted from the structure because they are generated dependencies and should not be committed to Git.
 
 ---
 
@@ -519,25 +517,25 @@ MONGODB_URI=your_mongodb_connection_string
 
 CORS_ORIGIN=http://localhost:5173
 
-ACCESS_TOKEN_SECRET=your_access_token_secret
-ACCESS_TOKEN_EXPIRY=your_access_token_expiry
+ACCESS_TOKEN_SECRET=access_token_secret
+ACCESS_TOKEN_EXPIRY=access_token_expiry
 
-REFRESH_TOKEN_SECRET=your_refresh_token_secret
-REFRESH_TOKEN_EXPIRY=your_refresh_token_expiry
+REFRESH_TOKEN_SECRET=refresh_token_secret
+REFRESH_TOKEN_EXPIRY=refresh_token_expiry
 
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CLOUDINARY_CLOUD_NAME=cloudinary_cloud_name
+CLOUDINARY_API_KEY=cloudinary_api_key
+CLOUDINARY_API_SECRET=cloudinary_api_secret
 
 NODE_ENV=development
 
-EMAIL_USER=your_smtp_host
-EMAIL_PASS=your_smtp_pass
+EMAIL_USER=smtp_host
+EMAIL_PASS=smtp_pass
 
-ADMIN_EMAIL=your_admin_email
+ADMIN_EMAIL=admin_email
 
-SSLCOMMERZ_STORE_ID=your_store_id
-SSLCOMMERZ_STORE_PASSWORD=your_store_password
+SSLCOMMERZ_STORE_ID=store_id
+SSLCOMMERZ_STORE_PASSWORD=store_password
 SSLCOMMERZ_IS_LIVE=false
 
 BACKEND_URL=http://localhost:5000
@@ -735,8 +733,6 @@ This project is currently available for educational and portfolio purposes.
 # 👨‍💻 Author
 
 **Tawhid Islam Tasin**
-
-CSE Undergraduate | MERN Stack Developer
 
 - GitHub: [@tawhidtasin77](https://github.com/tawhidtasin77)
 
