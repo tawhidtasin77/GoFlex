@@ -11,7 +11,7 @@
 
 > A modern full-stack e-commerce platform built with the MERN stack, featuring authentication, product management, persistent shopping carts, order processing, admin management, and SSLCommerz online payments.
 
-**[🚀 Live Demo](https://goflex-frontend-url.com)**
+**[🚀 Live Demo](https://goflex-kappa.vercel.app)**
 
 **[📦 GitHub Repository](https://github.com/tawhidtasin77/GoFlex)**
 
