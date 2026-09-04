@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { AuthContext } from "../context/AuthContext";
-import "../app.css"
+import "../App.css"
 import { api } from "../api/api";
 
 const Checkout = () => {
