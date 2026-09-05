@@ -27,7 +27,9 @@ const AdminOrders = () => {
 
         const orderData = response.data.data;
 
-        setOrders(Array.isArray(orderData) ? orderData : []);
+        setOrders(
+          Array.isArray(orderData) ? orderData : []
+        );
       } catch (error) {
         console.error("Failed to fetch orders:", error);
 
@@ -63,7 +65,10 @@ const AdminOrders = () => {
         )
       );
     } catch (error) {
-      console.error("Failed to update order status:", error);
+      console.error(
+        "Failed to update order status:",
+        error
+      );
 
       alert(
         error.response?.data?.message ||
@@ -121,18 +126,23 @@ const AdminOrders = () => {
   const formatStatus = (status) => {
     if (!status) return "Unknown";
 
-    return status.charAt(0).toUpperCase() + status.slice(1);
+    return (
+      status.charAt(0).toUpperCase() +
+      status.slice(1)
+    );
   };
 
   if (authLoading || loading) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center bg-zinc-950">
         <div className="text-center">
+
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-orange-500" />
 
           <p className="text-sm text-zinc-500">
             Loading orders...
           </p>
+
         </div>
       </div>
     );
@@ -144,23 +154,28 @@ const AdminOrders = () => {
 
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
+
       <div className="mx-auto max-w-7xl">
 
+        {/* Header */}
         <div className="mb-8">
+
           <button
             type="button"
             onClick={() => navigate("/admin")}
-            className="cursor-pointer mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+            className="mb-5 cursor-pointer text-sm font-medium text-zinc-400 transition hover:text-orange-500"
           >
             ← Back to Dashboard
           </button>
 
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-2xl ring-1 ring-orange-500/20">
+
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-2xl ring-1 ring-orange-500/20">
               🚚
             </div>
 
             <div>
+
               <p className="text-sm font-medium text-orange-500">
                 GoFlex Admin
               </p>
@@ -168,36 +183,50 @@ const AdminOrders = () => {
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                 Manage Orders
               </h1>
+
             </div>
+
           </div>
 
           <p className="mt-4 text-sm leading-6 text-zinc-500">
-            View customer orders, payment status, and update their delivery
-            status.
+            View customer orders, payment status, and update
+            their delivery status.
           </p>
+
         </div>
 
+        {/* Orders Card */}
         <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl shadow-black/20">
 
+          {/* Card Header */}
           <div className="flex flex-col gap-3 border-b border-zinc-800 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+
             <div>
+
               <h2 className="font-bold text-white">
                 All Orders
               </h2>
 
               <p className="mt-1 text-sm text-zinc-500">
                 {orders.length}{" "}
-                {orders.length === 1 ? "order" : "orders"} found
+                {orders.length === 1
+                  ? "order"
+                  : "orders"}{" "}
+                found
               </p>
+
             </div>
 
-            <div className="rounded-lg bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-500 ring-1 ring-orange-500/20">
+            <div className="whitespace-nowrap rounded-lg bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-500 ring-1 ring-orange-500/20">
               {orders.length} Total
             </div>
+
           </div>
 
           {orders.length === 0 ? (
+
             <div className="flex min-h-[300px] flex-col items-center justify-center px-6 text-center">
+
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 text-3xl">
                 📦
               </div>
@@ -207,79 +236,114 @@ const AdminOrders = () => {
               </h3>
 
               <p className="mt-2 max-w-md text-sm leading-6 text-zinc-500">
-                Customer orders will appear here once someone purchases
-                a product from GoFlex.
+                Customer orders will appear here once someone
+                purchases a product from GoFlex.
               </p>
+
             </div>
+
           ) : (
+
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1100px]">
+
+              <table className="w-full min-w-[1150px] table-fixed">
+
+                <colgroup>
+                  <col className="w-[140px]" />
+                  <col className="w-[250px]" />
+                  <col className="w-[160px]" />
+                  <col className="w-[180px]" />
+                  <col className="w-[150px]" />
+                  <col className="w-[300px]" />
+                </colgroup>
 
                 <thead>
+
                   <tr className="border-b border-zinc-800 bg-zinc-950/50">
 
-                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                    <th className="whitespace-nowrap px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       ORDER ID
                     </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                    <th className="whitespace-nowrap px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       CUSTOMER
                     </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                    <th className="whitespace-nowrap px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       TOTAL
                     </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                    <th className="whitespace-nowrap px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       DATE
                     </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                    <th className="whitespace-nowrap px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       PAYMENT
                     </th>
 
-                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
+                    <th className="whitespace-nowrap px-6 py-4 text-left text-xs font-semibold tracking-wider text-zinc-500">
                       STATUS
                     </th>
 
                   </tr>
+
                 </thead>
 
                 <tbody>
+
                   {orders.map((order) => (
+
                     <tr
                       key={order._id}
                       className="border-b border-zinc-800 transition hover:bg-zinc-800/30"
                     >
 
-                      <td className="px-6 py-5">
+                      {/* Order ID */}
+                      <td className="whitespace-nowrap px-6 py-5">
+
                         <span className="font-mono text-sm text-zinc-300">
                           #{order._id.substring(0, 8)}
                         </span>
+
                       </td>
 
+                      {/* Customer */}
                       <td className="px-6 py-5">
-                        <div>
-                          <p className="font-medium text-white">
-                            {order.user?.name || "Deleted User"}
+
+                        <div className="min-w-0">
+
+                          <p className="truncate font-medium text-white">
+                            {order.user?.name ||
+                              "Deleted User"}
                           </p>
 
                           {order.user?.email && (
-                            <p className="mt-1 text-xs text-zinc-500">
+                            <p className="mt-1 truncate text-xs text-zinc-500">
                               {order.user.email}
                             </p>
                           )}
+
                         </div>
+
                       </td>
 
-                      <td className="px-6 py-5">
+                      {/* Total */}
+                      <td className="whitespace-nowrap px-6 py-5">
+
                         <span className="font-semibold text-orange-500">
-                          ৳{Number(order.totalAmount || 0).toFixed(2)}
+                          ৳
+                          {Number(
+                            order.totalAmount || 0
+                          ).toFixed(2)}
                         </span>
+
                       </td>
 
-                      <td className="px-6 py-5">
+                      {/* Date */}
+                      <td className="whitespace-nowrap px-6 py-5">
+
                         <div>
+
                           <p className="text-sm text-zinc-300">
                             {new Date(
                               order.createdAt
@@ -289,48 +353,64 @@ const AdminOrders = () => {
                           <p className="mt-1 text-xs text-zinc-600">
                             {new Date(
                               order.createdAt
-                            ).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            ).toLocaleTimeString(
+                              [],
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )}
                           </p>
+
                         </div>
+
                       </td>
 
-                      {/* PAYMENT STATUS */}
-                      <td className="px-6 py-5">
+                      {/* Payment Status */}
+                      <td className="whitespace-nowrap px-6 py-5">
+
                         <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getPaymentStatusStyle(
+                          className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getPaymentStatusStyle(
                             order.paymentStatus
                           )}`}
                         >
-                          {formatStatus(order.paymentStatus)}
+                          {formatStatus(
+                            order.paymentStatus
+                          )}
                         </span>
+
                       </td>
 
-                      {/* ORDER STATUS */}
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
+                      {/* Order Status */}
+                      <td className="whitespace-nowrap px-6 py-5">
+
+                        <div className="flex items-center gap-3 whitespace-nowrap">
 
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getStatusStyle(
+                            className={`inline-flex shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getStatusStyle(
                               order.status
                             )}`}
                           >
-                            {formatStatus(order.status)}
+                            {formatStatus(
+                              order.status
+                            )}
                           </span>
 
                           <select
                             value={order.status}
-                            disabled={updatingOrder === order._id}
+                            disabled={
+                              updatingOrder ===
+                              order._id
+                            }
                             onChange={(e) =>
                               updateStatus(
                                 order._id,
                                 e.target.value
                               )
                             }
-                            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="shrink-0 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                           >
+
                             <option value="pending">
                               Pending
                             </option>
@@ -350,29 +430,40 @@ const AdminOrders = () => {
                             <option value="cancelled">
                               Cancelled
                             </option>
+
                           </select>
 
                         </div>
+
                       </td>
 
                     </tr>
+
                   ))}
+
                 </tbody>
 
               </table>
+
             </div>
           )}
 
         </div>
 
         {orders.length > 0 && (
+
           <div className="mt-5 flex items-center gap-2 text-xs text-zinc-600">
+
             <span className="h-2 w-2 rounded-full bg-orange-500" />
+
             Changes to order status are saved immediately.
+
           </div>
+
         )}
 
       </div>
+
     </div>
   );
 };
