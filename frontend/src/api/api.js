@@ -62,6 +62,7 @@ api.interceptors.response.use(
                 await api.post("/users/refresh-token");
 
                 isRefreshing = false;
+
                 onRefreshed();
 
                 return api(originalRequest);
