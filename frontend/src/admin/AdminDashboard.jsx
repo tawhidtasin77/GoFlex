@@ -37,9 +37,13 @@ const AdminDashboard = () => {
           error
         );
 
+        // if (error.response?.status === 401) {
+        //   navigate("/login");
+        //   return;
+        // }
+
         if (error.response?.status === 401) {
-          navigate("/login");
-          return;
+          console.error("Analytics returned 401:", error.response.data);
         }
 
         setStats({
@@ -151,10 +155,10 @@ const AdminDashboard = () => {
             <div className="mb-2 flex items-center gap-3">
 
               <img
-              src={logo}
-              alt="GoFlex Logo"
-              className="h-10 w-10 rounded-xl object-contain"
-            />
+                src={logo}
+                alt="GoFlex Logo"
+                className="h-10 w-10 rounded-xl object-contain"
+              />
 
               <div>
                 <p className="text-sm font-medium text-orange-500">
@@ -276,19 +280,17 @@ const AdminDashboard = () => {
                 key={control.title}
                 type="button"
                 onClick={() => navigate(control.path)}
-                className={`group rounded-2xl border p-6 text-left transition duration-300 cursor-pointer hover:-translate-y-1 ${
-                  control.primary
+                className={`group rounded-2xl border p-6 text-left transition duration-300 cursor-pointer hover:-translate-y-1 ${control.primary
                     ? "border-orange-500/30 bg-orange-500/10 hover:border-orange-500 hover:bg-orange-500/15"
                     : "border-zinc-800 bg-zinc-900 hover:border-zinc-600"
-                }`}
+                  }`}
               >
 
                 <div
-                  className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl text-xl ${
-                    control.primary
+                  className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl text-xl ${control.primary
                       ? "bg-orange-500 text-white"
                       : "bg-zinc-800 text-zinc-200"
-                  }`}
+                    }`}
                 >
                   {control.icon}
                 </div>
