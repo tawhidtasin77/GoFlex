@@ -549,7 +549,7 @@ const AdminReturnRequests = () => {
                               "rejected"
                             )
                           }
-                          className="rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-400 transition hover:border-red-500 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="cursor-pointer rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-400 transition hover:border-red-500 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {updatingId ===
                             request._id
@@ -569,7 +569,7 @@ const AdminReturnRequests = () => {
                               "approved"
                             )
                           }
-                          className="rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="cursor-pointer rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {updatingId ===
                             request._id
