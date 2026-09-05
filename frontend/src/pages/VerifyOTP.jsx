@@ -22,9 +22,7 @@ const VerifyOTP = () => {
 
   const [email, setEmail] = useState(
     location.state?.email ||
-      sessionStorage.getItem(
-        "verificationEmail"
-      ) ||
+      sessionStorage.getItem("verificationEmail") ||
       ""
   );
 
@@ -99,7 +97,17 @@ const VerifyOTP = () => {
       const verifiedUser =
         response.data.data.user;
 
-      login(verifiedUser);
+      const accessToken =
+        response.data.data.accessToken;
+
+      const refreshToken =
+        response.data.data.refreshToken;
+
+      login(
+        verifiedUser,
+        accessToken,
+        refreshToken
+      );
 
       sessionStorage.removeItem(
         "verificationEmail"
@@ -185,6 +193,7 @@ const VerifyOTP = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10">
+
       {toast && (
         <Toast
           type={toast.type}
@@ -195,7 +204,9 @@ const VerifyOTP = () => {
       )}
 
       <div className="w-full max-w-md">
+
         <div className="mb-8 text-center">
+
           <h1 className="text-4xl font-bold text-white">
             Go
             <span className="text-orange-500">
@@ -206,12 +217,14 @@ const VerifyOTP = () => {
           <p className="mt-3 text-zinc-400">
             Verify your email address.
           </p>
+
         </div>
 
         <form
           onSubmit={handleSubmit}
           className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl sm:p-8"
         >
+
           <h2 className="mb-3 text-2xl font-semibold text-white">
             Verify OTP
           </h2>
@@ -225,6 +238,7 @@ const VerifyOTP = () => {
           </p>
 
           <div className="mb-4">
+
             <label
               htmlFor="otp"
               className="mb-2 block text-sm font-medium text-zinc-300"
@@ -252,17 +266,25 @@ const VerifyOTP = () => {
               required
               className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-center text-xl tracking-[0.5em] text-white outline-none placeholder:text-zinc-500 placeholder:tracking-normal focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
+
           </div>
 
           <div className="mb-6 text-center">
+
             {cooldown > 0 ? (
+
               <p className="text-sm text-zinc-500">
+
                 Resend OTP in{" "}
+
                 <span className="font-medium text-orange-500">
                   {cooldown}s
                 </span>
+
               </p>
+
             ) : (
+
               <button
                 type="button"
                 onClick={handleResendOTP}
@@ -273,7 +295,9 @@ const VerifyOTP = () => {
                   ? "Sending OTP..."
                   : "Resend OTP"}
               </button>
+
             )}
+
           </div>
 
           <button
@@ -291,15 +315,20 @@ const VerifyOTP = () => {
           </button>
 
           <p className="mt-6 text-center text-sm text-zinc-400">
+
             Didn't register correctly?{" "}
+
             <Link
               to="/register"
               className="cursor-pointer font-medium text-orange-500 transition hover:text-orange-400"
             >
               Register Again
             </Link>
+
           </p>
+
         </form>
+
       </div>
     </div>
   );

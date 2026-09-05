@@ -14,7 +14,6 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
-
   const [toast, setToast] = useState(null);
 
   const handleChange = (e) => {
@@ -37,20 +36,23 @@ const Login = () => {
         password: formData.password,
       });
 
-      const userData = response.data.data;
+      const loginData = response.data.data;
 
-      login(userData.user);
+      login(
+        loginData.user,
+        loginData.accessToken,
+        loginData.refreshToken
+      );
 
       setToast({
         type: "success",
-        message: "Welcome back! You have successfully logged in.",
+        message:
+          "Welcome back! You have successfully logged in.",
       });
 
-      // Navigate after toast animation finishes
       setTimeout(() => {
         navigate("/");
       }, 3400);
-
     } catch (error) {
       console.error("Login error:", error);
 
@@ -62,7 +64,6 @@ const Login = () => {
         type: "error",
         message,
       });
-
     } finally {
       setLoading(false);
     }
