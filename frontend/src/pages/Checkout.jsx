@@ -360,7 +360,7 @@ const Checkout = () => {
                   loading ||
                   cartItems.length === 0
                 }
-                className="mt-6 hidden w-full rounded-lg bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-400 lg:block"
+                className="cursor-pointer mt-6 hidden w-full rounded-lg bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-400 lg:block"
               >
                 {loading
                   ? "Processing..."

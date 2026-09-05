@@ -55,7 +55,7 @@ const ProductCard = ({ product }) => {
           type="button"
           onClick={handleAddToCart}
           disabled={product.stock <= 0}
-          className="mt-5 w-full rounded-lg bg-orange-500 px-4 py-2.5 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-300"
+          className="cursor-pointer mt-5 w-full rounded-lg bg-orange-500 px-4 py-2.5 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-300"
         >
           {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
         </button>
