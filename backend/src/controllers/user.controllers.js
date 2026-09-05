@@ -359,6 +359,14 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const refreshAccessToken = asyncHandler(
     async (req, res) => {
+
+        console.log("REFRESH TOKEN REQUEST:", {
+            hasCookie: !!req.cookies?.refreshToken,
+            hasBodyToken: !!req.body?.refreshToken,
+            origin: req.headers.origin,
+            userAgent: req.headers["user-agent"],
+        });
+
         const incomingRefreshToken =
             req.cookies?.refreshToken ||
             req.body?.refreshToken;
