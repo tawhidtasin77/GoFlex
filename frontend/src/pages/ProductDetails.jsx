@@ -91,7 +91,7 @@ const ProductDetail = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="mb-6 text-sm font-medium text-orange-500 hover:text-orange-600"
+          className="cursor-pointer mb-6 text-sm font-medium text-orange-500 hover:text-orange-600"
         >
           ← Back
         </button>
@@ -153,7 +153,7 @@ const ProductDetail = () => {
                     onClick={() =>
                       setQuantity((prev) => Math.max(1, prev - 1))
                     }
-                    className="px-4 py-2 text-lg font-semibold text-gray-700 transition hover:bg-gray-100"
+                    className="cursor-pointer px-4 py-2 text-lg font-semibold text-gray-700 transition hover:bg-gray-100"
                   >
                     −
                   </button>
@@ -169,7 +169,7 @@ const ProductDetail = () => {
                         Math.min(product.stock, prev + 1)
                       )
                     }
-                    className="px-4 py-2 text-lg font-semibold text-gray-700 transition hover:bg-gray-100"
+                    className="cursor-pointer px-4 py-2 text-lg font-semibold text-gray-700 transition hover:bg-gray-100"
                   >
                     +
                   </button>
@@ -182,7 +182,7 @@ const ProductDetail = () => {
               type="button"
               onClick={handleAddToCart}
               disabled={product.stock <= 0}
-              className="mt-8 w-full rounded-lg bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="cursor-pointer mt-8 w-full rounded-lg bg-orange-500 px-6 py-3.5 font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300"
             >
               {product.stock <= 0
                 ? "Out of Stock"

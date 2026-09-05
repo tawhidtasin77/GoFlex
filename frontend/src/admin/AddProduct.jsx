@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router";
 import { api } from "../api/api";
 import { categories } from "../constants/categories";
+import Toast from "../components/Toast";
 
 const AddProduct = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -18,6 +19,8 @@ const AddProduct = () => {
 
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [toast, setToast] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,12 +43,18 @@ const AddProduct = () => {
     e.preventDefault();
 
     if (!image) {
-      alert("Please select a product image.");
+      setToast({
+        message: "Please select a product image.",
+        type: "error",
+      });
       return;
     }
 
     if (!formData.category) {
-      alert("Please select a product category.");
+      setToast({
+        message: "Please select a product category.",
+        type: "error",
+      });
       return;
     }
 
@@ -63,16 +72,25 @@ const AddProduct = () => {
 
       await api.post("/products", data);
 
-      alert("Product created successfully!");
+      // Show success toast
+      setToast({
+        message: "Product created successfully!",
+        type: "success",
+      });
 
-      navigate("/admin/products");
+      // Give the toast time to appear before navigating
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 1500);
     } catch (error) {
       console.error("Failed to create product:", error);
 
-      alert(
-        error.response?.data?.message ||
-          "Something went wrong while creating the product."
-      );
+      setToast({
+        message:
+          error.response?.data?.message ||
+          "Something went wrong while creating the product.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -95,16 +113,19 @@ const AddProduct = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
 
+        {/* Back Button */}
         <button
           type="button"
           onClick={() => navigate("/admin")}
-          className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+          className="mb-5 cursor-pointer text-sm font-medium text-zinc-400 transition hover:text-orange-500"
         >
           ← Back to Dashboard
         </button>
 
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4">
+
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-2xl ring-1 ring-orange-500/20">
               ➕
             </div>
@@ -118,6 +139,7 @@ const AddProduct = () => {
                 Add New Product
               </h1>
             </div>
+
           </div>
 
           <p className="mt-4 text-sm leading-6 text-zinc-500">
@@ -125,10 +147,21 @@ const AddProduct = () => {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl shadow-black/20 sm:p-8">
+        {/* Card */}
+        <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl shadow-black/20 sm:p-8">
+
+          {/* Toast */}
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
 
+            {/* Product Name */}
             <div>
               <label
                 htmlFor="name"
@@ -149,6 +182,7 @@ const AddProduct = () => {
               />
             </div>
 
+            {/* Description */}
             <div>
               <label
                 htmlFor="description"
@@ -169,8 +203,10 @@ const AddProduct = () => {
               />
             </div>
 
+            {/* Price & Stock */}
             <div className="grid gap-6 sm:grid-cols-2">
 
+              {/* Price */}
               <div>
                 <label
                   htmlFor="price"
@@ -180,6 +216,7 @@ const AddProduct = () => {
                 </label>
 
                 <div className="relative">
+
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-orange-500">
                     ৳
                   </span>
@@ -196,9 +233,11 @@ const AddProduct = () => {
                     required
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-3 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
+
                 </div>
               </div>
 
+              {/* Stock */}
               <div>
                 <label
                   htmlFor="stock"
@@ -222,6 +261,7 @@ const AddProduct = () => {
 
             </div>
 
+            {/* Category */}
             <div>
               <label
                 htmlFor="category"
@@ -238,6 +278,7 @@ const AddProduct = () => {
                 required
                 className="w-full cursor-pointer rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
               >
+
                 <option value="" disabled>
                   Select a category
                 </option>
@@ -247,6 +288,7 @@ const AddProduct = () => {
                     {category}
                   </option>
                 ))}
+
               </select>
 
               <p className="mt-2 text-xs text-zinc-600">
@@ -254,6 +296,7 @@ const AddProduct = () => {
               </p>
             </div>
 
+            {/* Product Image */}
             <div>
               <label
                 htmlFor="image"
@@ -297,6 +340,7 @@ const AddProduct = () => {
 
                   {image && (
                     <div className="mt-4 rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3">
+
                       <p className="max-w-xs truncate text-sm text-zinc-300">
                         {image.name}
                       </p>
@@ -304,6 +348,7 @@ const AddProduct = () => {
                       <p className="mt-1 text-xs text-zinc-600">
                         {(image.size / 1024 / 1024).toFixed(2)} MB
                       </p>
+
                     </div>
                   )}
 
@@ -311,29 +356,33 @@ const AddProduct = () => {
               </div>
             </div>
 
+            {/* Buttons */}
             <div className="flex flex-col-reverse gap-3 border-t border-zinc-800 pt-6 sm:flex-row sm:justify-end">
 
+              {/* Cancel */}
               <button
                 type="button"
                 onClick={() => navigate("/admin")}
                 disabled={loading}
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-6 py-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded-lg border border-zinc-700 bg-zinc-900 px-6 py-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel
               </button>
 
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/10 transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
+                className="cursor-pointer rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/10 transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
               >
-                {loading ? "Uploading & Creating..." : "Publish Product"}
+                {loading
+                  ? "Uploading & Creating..."
+                  : "Publish Product"}
               </button>
 
             </div>
 
           </form>
-
         </div>
       </div>
     </div>

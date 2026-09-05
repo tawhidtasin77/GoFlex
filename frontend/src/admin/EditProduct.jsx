@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router";
 import { api } from "../api/api";
 import { categories } from "../constants/categories";
+import Toast from "../components/Toast";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -21,6 +22,9 @@ const EditProduct = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
+  // Toast state
+  const [toast, setToast] = useState(null);
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -38,12 +42,16 @@ const EditProduct = () => {
       } catch (error) {
         console.error("Failed to fetch product:", error);
 
-        alert(
-          error.response?.data?.message ||
-            "Failed to fetch product."
-        );
+        setToast({
+          message:
+            error.response?.data?.message ||
+            "Failed to fetch product.",
+          type: "error",
+        });
 
-        navigate("/admin/products");
+        setTimeout(() => {
+          navigate("/admin/products");
+        }, 1500);
       } finally {
         setLoading(false);
       }
@@ -91,16 +99,25 @@ const EditProduct = () => {
 
       await api.put(`/products/${id}`, data);
 
-      alert("Product updated successfully!");
+      // Show success Toast
+      setToast({
+        message: "Product updated successfully!",
+        type: "success",
+      });
 
-      navigate("/admin/products");
+      // Wait so the Toast can be seen before navigating
+      setTimeout(() => {
+        navigate("/admin/products");
+      }, 1500);
     } catch (error) {
       console.error("Failed to update product:", error);
 
-      alert(
-        error.response?.data?.message ||
-          "Something went wrong while updating the product."
-      );
+      setToast({
+        message:
+          error.response?.data?.message ||
+          "Something went wrong while updating the product.",
+        type: "error",
+      });
     } finally {
       setUpdating(false);
     }
@@ -123,14 +140,16 @@ const EditProduct = () => {
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
 
+        {/* Back Button */}
         <button
           type="button"
           onClick={() => navigate("/admin/products")}
-          className="mb-5 text-sm font-medium text-zinc-400 transition hover:text-orange-500"
+          className="mb-5 cursor-pointer text-sm font-medium text-zinc-400 transition hover:text-orange-500"
         >
           ← Back to Products
         </button>
 
+        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4">
 
@@ -155,10 +174,21 @@ const EditProduct = () => {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl shadow-black/20 sm:p-8">
+        {/* Main Card */}
+        <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-2xl shadow-black/20 sm:p-8">
+
+          {/* Toast */}
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => setToast(null)}
+            />
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
 
+            {/* Product Name */}
             <div>
               <label
                 htmlFor="name"
@@ -178,6 +208,7 @@ const EditProduct = () => {
               />
             </div>
 
+            {/* Description */}
             <div>
               <label
                 htmlFor="description"
@@ -197,8 +228,10 @@ const EditProduct = () => {
               />
             </div>
 
+            {/* Price & Stock */}
             <div className="grid gap-6 sm:grid-cols-2">
 
+              {/* Price */}
               <div>
                 <label
                   htmlFor="price"
@@ -208,6 +241,7 @@ const EditProduct = () => {
                 </label>
 
                 <div className="relative">
+
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-orange-500">
                     ৳
                   </span>
@@ -223,9 +257,11 @@ const EditProduct = () => {
                     required
                     className="w-full rounded-lg border border-zinc-700 bg-zinc-950 py-3 pl-10 pr-4 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
                   />
+
                 </div>
               </div>
 
+              {/* Stock */}
               <div>
                 <label
                   htmlFor="stock"
@@ -248,6 +284,7 @@ const EditProduct = () => {
 
             </div>
 
+            {/* Category */}
             <div>
               <label
                 htmlFor="category"
@@ -264,6 +301,7 @@ const EditProduct = () => {
                 required
                 className="w-full cursor-pointer rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
               >
+
                 <option value="" disabled>
                   Select a category
                 </option>
@@ -273,15 +311,18 @@ const EditProduct = () => {
                     {category}
                   </option>
                 ))}
+
               </select>
             </div>
 
+            {/* Product Image */}
             <div>
               <label
                 htmlFor="image"
                 className="mb-2 block text-sm font-semibold text-zinc-200"
               >
                 Replace Product Image
+
                 <span className="ml-2 text-xs font-normal text-zinc-500">
                   (Optional)
                 </span>
@@ -321,9 +362,11 @@ const EditProduct = () => {
 
                   {image && (
                     <div className="mt-4 rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3">
+
                       <p className="max-w-xs truncate text-sm text-zinc-300">
                         {image.name}
                       </p>
+
                     </div>
                   )}
 
@@ -332,21 +375,24 @@ const EditProduct = () => {
               </div>
             </div>
 
+            {/* Buttons */}
             <div className="flex flex-col-reverse gap-3 border-t border-zinc-800 pt-6 sm:flex-row sm:justify-end">
 
+              {/* Cancel */}
               <button
                 type="button"
                 onClick={() => navigate("/admin/products")}
                 disabled={updating}
-                className="rounded-lg border border-zinc-700 bg-zinc-900 px-6 py-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="cursor-pointer rounded-lg border border-zinc-700 bg-zinc-900 px-6 py-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel
               </button>
 
+              {/* Update */}
               <button
                 type="submit"
                 disabled={updating}
-                className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
+                className="cursor-pointer rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
               >
                 {updating ? "Updating..." : "Update Product"}
               </button>
