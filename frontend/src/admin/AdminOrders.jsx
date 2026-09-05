@@ -1,15 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router";
+
 import { AuthContext } from "../context/AuthContext";
 import { api } from "../api/api";
 
 const AdminOrders = () => {
-  const { user, loading: authLoading } = useContext(AuthContext);
+  const { user, loading: authLoading } =
+    useContext(AuthContext);
+
   const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [updatingOrder, setUpdatingOrder] = useState(null);
+  const [updatingOrder, setUpdatingOrder] =
+    useState(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -28,10 +37,15 @@ const AdminOrders = () => {
         const orderData = response.data.data;
 
         setOrders(
-          Array.isArray(orderData) ? orderData : []
+          Array.isArray(orderData)
+            ? orderData
+            : []
         );
       } catch (error) {
-        console.error("Failed to fetch orders:", error);
+        console.error(
+          "Failed to fetch orders:",
+          error
+        );
 
         if (error.response?.status === 401) {
           navigate("/login");
@@ -48,11 +62,15 @@ const AdminOrders = () => {
     try {
       setUpdatingOrder(id);
 
-      const response = await api.put(`/orders/${id}/status`, {
-        status,
-      });
+      const response = await api.put(
+        `/orders/${id}/status`,
+        {
+          status,
+        }
+      );
 
-      const updatedOrder = response.data.data;
+      const updatedOrder =
+        response.data.data;
 
       setOrders((previousOrders) =>
         previousOrders.map((order) =>
@@ -189,8 +207,8 @@ const AdminOrders = () => {
           </div>
 
           <p className="mt-4 text-sm leading-6 text-zinc-500">
-            View customer orders, payment status, and update
-            their delivery status.
+            View customer orders, payment status,
+            and update their delivery status.
           </p>
 
         </div>
@@ -236,8 +254,9 @@ const AdminOrders = () => {
               </h3>
 
               <p className="mt-2 max-w-md text-sm leading-6 text-zinc-500">
-                Customer orders will appear here once someone
-                purchases a product from GoFlex.
+                Customer orders will appear here
+                once someone purchases a product
+                from GoFlex.
               </p>
 
             </div>
@@ -302,7 +321,11 @@ const AdminOrders = () => {
                       <td className="whitespace-nowrap px-6 py-5">
 
                         <span className="font-mono text-sm text-zinc-300">
-                          #{order._id.substring(0, 8)}
+                          #
+                          {order._id.substring(
+                            0,
+                            8
+                          )}
                         </span>
 
                       </td>
@@ -370,7 +393,7 @@ const AdminOrders = () => {
                       <td className="whitespace-nowrap px-6 py-5">
 
                         <span
-                          className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getPaymentStatusStyle(
+                          className={`inline-flex w-[82px] justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getPaymentStatusStyle(
                             order.paymentStatus
                           )}`}
                         >
@@ -384,10 +407,11 @@ const AdminOrders = () => {
                       {/* Order Status */}
                       <td className="whitespace-nowrap px-6 py-5">
 
-                        <div className="flex items-center gap-3 whitespace-nowrap">
+                        <div className="flex w-full items-center justify-between gap-4">
 
+                          {/* Status Badge */}
                           <span
-                            className={`inline-flex shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getStatusStyle(
+                            className={`inline-flex w-[88px] shrink-0 justify-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ring-1 ${getStatusStyle(
                               order.status
                             )}`}
                           >
@@ -396,6 +420,7 @@ const AdminOrders = () => {
                             )}
                           </span>
 
+                          {/* Status Select */}
                           <select
                             value={order.status}
                             disabled={
@@ -408,7 +433,7 @@ const AdminOrders = () => {
                                 e.target.value
                               )
                             }
-                            className="shrink-0 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="w-[120px] shrink-0 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                           >
 
                             <option value="pending">
@@ -456,7 +481,8 @@ const AdminOrders = () => {
 
             <span className="h-2 w-2 rounded-full bg-orange-500" />
 
-            Changes to order status are saved immediately.
+            Changes to order status are saved
+            immediately.
 
           </div>
 
